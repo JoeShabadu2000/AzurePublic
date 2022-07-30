@@ -6,6 +6,7 @@
 // Network Security Group
 // NIC
 // VM
+// VM Setup Script
 
 
 //
@@ -95,6 +96,12 @@ param vmImageVersion string = 'latest'
   'UltraSSD_LRS'
 ])
 param vmManagedDiskType string = 'Premium_LRS'
+
+@description('Name of the VM Setup Script')
+param vmSetupScriptName string = 'vmSetupScript-${projectName}'
+
+@description('URI of the VM Setup script (passed from Powershell)')
+param vmSetupScriptURI string
 
 //
 // Create VNet and Subnet
@@ -232,6 +239,21 @@ resource vmResource 'Microsoft.Compute/virtualMachines@2022-03-01' = {
           storageAccountType: vmManagedDiskType
         }
       }
+    }
+  }
+}
+
+//
+// Run Setup script in Ubuntu
+//
+
+resource vmSetupScriptResource 'Microsoft.Compute/virtualMachines/runCommands@2022-03-01' = {
+  location: projectLocation
+  name: vmSetupScriptName
+  parent: vmResource
+  properties: {
+    source: {
+      scriptUri: vmSetupScriptURI
     }
   }
 }
