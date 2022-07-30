@@ -1,3 +1,13 @@
+// Script to deploy infrastructure in Azure to host Zabbix on a Linux VM 
+//
+// Sets up (in order):
+// Vnet and Subnet
+// Public IP
+// Network Security Group
+// NIC
+// VM
+
+
 //
 // Define Parameters
 //
@@ -48,6 +58,43 @@ param nicIPConfigName string = 'nicipconfig-${projectName}'
 @description('Name to be used for the Virtual Machine')
 param vmName string = 'vm-${projectName}'
 
+@description('SKU to use for the VM hardware spec')
+@allowed([
+  'Standard_B1s'
+  'Standard_B1ms'
+  'Standard_B1ls'
+])
+param vmSKU string = 'Standard_B1s'
+
+@description('Username of the Linux administrator')
+param vmAdminUsername string = 'azureuser'
+
+@description('SSH Public Key (passed in through Powershell')
+param sshpublickey string
+
+@description('VM Image Publisher Name')
+param vmImagePublisherName string = 'Canonical'
+
+@description('VM Image Offer Name')
+param vmImageOffer string = '0001-com-ubuntu-server-jammy'
+
+@description('VM Image SKU')
+param vmImageSKU string = '22_04-lts-gen2'
+
+@description('VM Image Version')
+param vmImageVersion string = 'latest'
+
+@description('Storage account type to use for the VM managed disk')
+@allowed([
+  'PremiumV2_LRS'
+  'Premium_LRS'
+  'Premium_ZRS'
+  'StandardSSD_LRS'
+  'StandardSSD_ZRS'
+  'Standard_LRS'
+  'UltraSSD_LRS'
+])
+param vmManagedDiskType string = 'Premium_LRS'
 
 //
 // Create VNet and Subnet
@@ -135,5 +182,56 @@ resource nicResource 'Microsoft.Network/networkInterfaces@2022-01-01' = {
         }
       }
     ]
+  }
+}
+
+//
+// Create Virtual Machine
+//
+
+resource vmResource 'Microsoft.Compute/virtualMachines@2022-03-01' = {
+  name: vmName
+  location: projectLocation
+  properties: {
+    hardwareProfile: {
+      vmSize: vmSKU
+    }
+    networkProfile: {
+      networkInterfaces: [
+        {
+          id: nicResource.id
+        }
+      ]
+    }
+    osProfile: {
+      adminUsername: vmAdminUsername
+      computerName: vmName
+      linuxConfiguration: {
+        disablePasswordAuthentication: true
+        ssh: {
+          publicKeys: [
+            {
+              keyData: sshpublickey
+              path: '/home/${vmAdminUsername}/.ssh/authorized_keys'
+            }
+          ]
+        }
+      }
+    }
+    storageProfile: {
+      imageReference: {
+        publisher: vmImagePublisherName
+        offer: vmImageOffer
+        sku: vmImageSKU
+        version: vmImageVersion
+      }
+      osDisk: {
+        createOption: 'FromImage'
+        deleteOption: 'Delete'
+        managedDisk: {
+          storageAccountType: vmManagedDiskType
+        }
+      }
+    }
   }
 }
