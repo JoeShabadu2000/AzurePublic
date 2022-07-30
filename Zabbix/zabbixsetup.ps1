@@ -8,7 +8,7 @@ $rgName = "rg-$projectName"
 $vmName = "TA1-SV16-Zabbix"
 $sshkeyRgName = "keyvault"  ## This is the name of the resource group that you store your keys in
 $sshkeyName = "vmkey"  ## This is the name of the public SSH key you want to use for the VM
-$vmSetupScriptURI = "https://github.com/JoeShabadu2000/AzurePublic/blob/6b9d8e3d9c0ae134c60f4504dab2f4ac51efd494/Zabbix/zabbixsetup-ubuntu2204.sh"
+$vmSetupScriptURI = "https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/6b9d8e3d9c0ae134c60f4504dab2f4ac51efd494/Zabbix/zabbixsetup-ubuntu2204.sh"
 
 #############
 

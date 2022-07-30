@@ -1,6 +1,5 @@
 ### Run this file inside the VM after it has been provisioned in Azure
-### 
-
+### wget -O - https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/6b9d8e3d9c0ae134c60f4504dab2f4ac51efd494/Zabbix/zabbixsetup-ubuntu2204.sh | sudo bash
 #######General#############
 
 # Open the following ports in Azure: 22, 80, 443, 10050, 10051
