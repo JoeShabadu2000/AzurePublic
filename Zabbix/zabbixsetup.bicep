@@ -36,7 +36,7 @@ param publicIPFQDN string = 'tabula${projectName}'
 // Create VNet and Subnet
 // Uses Virtual Network module from public registry
 
-module vnetBlock 'br/public:network/virtual-network:1.0.2' = {
+module vnetResource 'br/public:network/virtual-network:1.0.2' = {
   name: vnetName
   params: {
     name: vnetName
@@ -55,10 +55,10 @@ module vnetBlock 'br/public:network/virtual-network:1.0.2' = {
 
 // Deploy Public IP
 
-resource publicipBlock 'Microsoft.Network/publicIPAddresses@2022-01-01' = {
+resource publicipResource 'Microsoft.Network/publicIPAddresses@2022-01-01' = {
   name: publicipName
   dependsOn: [
-    vnetBlock
+    vnetResource
   ]
   location: projectLocation
   sku: {
