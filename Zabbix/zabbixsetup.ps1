@@ -1,6 +1,7 @@
 $projectName = "zabbixbasic"
 $projectLocation = "eastus"
 $subscriptionName = "Microsoft Partner Network"
+$vmName = "TA1-SV16-Zabbix"
 
 $rgName = "rg-$projectName"
 
@@ -11,4 +12,4 @@ Set-AzContext $subscriptionName
 New-AzResourceGroup -Name $rgName -Location $projectLocation
 
 # Deploy Script using variables listed above
-New-AzResourceGroupDeployment -ResourceGroupName $rgName -TemplateFile "C:\Users\User\Documents\GitHub\AzurePublic\zabbixbasic.json" -projectName $projectName -projectLocation $projectLocation
+New-AzResourceGroupDeployment -ResourceGroupName $rgName -TemplateFile "https://github.com/JoeShabadu2000/AzurePublic/blob/4db9de4c47d2a29f75fb08c24c0275db65b056a2/Zabbix/zabbixsetup.bicep" -projectName $projectName -projectLocation $projectLocation -vmName $vmName
