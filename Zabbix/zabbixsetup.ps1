@@ -1,4 +1,4 @@
-$projectName = "zabbix1"
+$projectName = "zabbix"
 $projectLocation = "eastus"
 $subscriptionName = "Microsoft Partner Network"
 $vmName = "TA1-SV16-Zabbix"
