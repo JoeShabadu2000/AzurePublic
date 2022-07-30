@@ -1,0 +1,32 @@
+{
+    "securityRules": [
+      {
+        "name": "Allow_Zabbix_10050_from_all",
+        "properties": {
+          "description": "Allow inbound Zabbix 10050",
+          "protocol": "Tcp",
+          "sourceAddressPrefix": "*",
+          "sourcePortRange": "*",
+          "destinationAddressPrefix": "*",
+          "destinationPortRange": "10050",
+          "access": "Allow",
+          "priority": 200,
+          "direction": "Inbound"
+        }
+      },
+      {
+        "name": "Allow_Zabbix_10051_from_all",
+        "properties": {
+          "description": "Allow inbound Zabbix 10051",
+          "protocol": "Tcp",
+          "sourceAddressPrefix": "*",
+          "sourcePortRange": "*",
+          "destinationAddressPrefix": "*",
+          "destinationPortRange": "10051",
+          "access": "Allow",
+          "priority": 201,
+          "direction": "Inbound"
+        }
+      }
+    ]
+  }

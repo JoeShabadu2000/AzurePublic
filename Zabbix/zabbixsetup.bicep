@@ -29,8 +29,13 @@ param publicipName string = 'publicip-${projectName}'
 ])
 param publicipSKU string = 'Basic'
 
-@description('FQDN for public IP (will concatenate [name].[region].cloudapp.azure.com)')
-param publicIPFQDN string = 'tabula${projectName}'
+@description('Domain name for public IP (will concatenate [name].[region].cloudapp.azure.com)')
+param publicIPDomainName string = 'tabula${projectName}'
+
+@description('Name of the Network Security Group')
+param nsgName string = 'nsg-${projectName}'
+
+
 
 
 // Create VNet and Subnet
@@ -66,7 +71,19 @@ resource publicipResource 'Microsoft.Network/publicIPAddresses@2022-01-01' = {
   }
   properties: {
     dnsSettings: {
-      fqdn: publicIPFQDN
+      domainNameLabel: publicIPDomainName
     }
+  }
+}
+
+// Deploy Network Security Group
+
+resource nsgResource 'Microsoft.Network/networkSecurityGroups@2022-01-01' = {
+  name: nsgName
+  location: projectLocation
+  properties: {
+    securityRules: [
+      
+    ]
   }
 }
