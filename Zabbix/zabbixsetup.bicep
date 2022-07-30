@@ -22,10 +22,18 @@ param vmName string = 'vm-${projectName}'
 @description('Name of the Public IP Address')
 param publicipName string = 'publicip-${projectName}'
 
+@description('SKU to use for the Public IP')
+@allowed([
+  'Basic'
+  'Standard'
+])
+param publicipSKU string = 'Basic'
+
 
 // Create VNet and Subnet
+// Uses Virtual Network module from public registry
 
-module vnet 'br/public:network/virtual-network:1.0.2' = {
+module vnetBlock 'br/public:network/virtual-network:1.0.2' = {
   name: vnetName
   params: {
     name: vnetName
@@ -39,5 +47,18 @@ module vnet 'br/public:network/virtual-network:1.0.2' = {
         addressPrefix: subnetIPAddress
       }
     ]
+  }
+}
+
+// Deploy Public IP
+
+resource publicipBlock 'Microsoft.Network/publicIPAddresses@2022-01-01' = {
+  name: publicipName
+  dependsOn: [
+    vnetBlock
+  ]
+  location: projectLocation
+  sku: {
+    name: publicipSKU
   }
 }
