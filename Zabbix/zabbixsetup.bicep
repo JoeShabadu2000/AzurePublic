@@ -28,17 +28,17 @@ param subnetIPAddress string = '10.227.1.0/24'
 // Create VNet and Subnet
 
 module vnet 'br/public:network/virtual-network:1.0.2' = {
-  name: '${vnetName}'
+  name: vnetName
   params: {
-    name: '${vnetName}'
-    location: '${projectLocation}'
+    name: vnetName
+    location: projectLocation
     addressPrefixes: [
-      '${vnetIPAddress}'
+      vnetIPAddress
     ]
     subnets: [
       {
-        name: '${subnetName}'
-        addressPrefix: '${subnetIPAddress}'
+        name: subnetName
+        addressPrefix: subnetIPAddress
       }
     ]
   }
