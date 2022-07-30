@@ -29,6 +29,9 @@ param publicipName string = 'publicip-${projectName}'
 ])
 param publicipSKU string = 'Basic'
 
+@description('FQDN for public IP (will concatenate [name].[region].cloudapp.azure.com)')
+param publicIPFQDN string = 'tabula${projectName}'
+
 
 // Create VNet and Subnet
 // Uses Virtual Network module from public registry
@@ -60,5 +63,10 @@ resource publicipBlock 'Microsoft.Network/publicIPAddresses@2022-01-01' = {
   location: projectLocation
   sku: {
     name: publicipSKU
+  }
+  properties: {
+    dnsSettings: {
+      fqdn: publicIPFQDN
+    }
   }
 }
