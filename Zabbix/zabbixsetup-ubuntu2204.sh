@@ -2,8 +2,6 @@
 ### wget -O - https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/Zabbix/zabbixsetup-ubuntu2204.sh | sudo bash
 #######General#############
 
-echo "Script Starting in 2 Seconds"
-sleep 2s
 # Open the following ports in Azure: 22, 80, 443, 10050, 10051
 
 # Set Time Zone to America/New_York
@@ -27,9 +25,6 @@ sudo apt-get install vim curl mc rsync -y
 
 echo "colorscheme desert" | sudo tee -a /etc/vim/vimrc
 
-echo "Start Zabbix Install in 2 Seconds"
-sleep 2s
-
 #######Install Zabbix#######
 
 # Install Zabbix Repo
@@ -39,9 +34,6 @@ sudo wget https://repo.zabbix.com/zabbix/6.0/ubuntu/pool/main/z/zabbix-release/z
 # Install Zabbix server, frontend, agent
 
 sudo apt-get install zabbix-server-mysql zabbix-frontend-php zabbix-apache-conf zabbix-sql-scripts zabbix-agent -y
-
-echo "Start MySQL Install in 2 Seconds"
-sleep 2s
 
 # Edit MySQL config file to disable binary logging (to prevent log 
 # files from getting too large)
@@ -69,9 +61,6 @@ sudo sed -i 's/# DBPassword=/DBPassword=zabbixdbpassword/g' /etc/zabbix/zabbix_s
 sudo systemctl restart zabbix-server zabbix-agent apache2
 
 sudo systemctl enable zabbix-server zabbix-agent apache2
-
-echo "Start LetsEncrypt Install in 2 Seconds"
-sleep 2s
 
 # Install Let's Encrypt certificate for frontend
 
