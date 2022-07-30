@@ -16,6 +16,10 @@ sudo fallocate -l 1G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapf
 
 echo "@reboot root fallocate -l 1G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile" | sudo tee -a /etc/crontab
 
+# Change Ubuntu needrestart behavior so that it automatically restarts daemons, so as to not freeze up the script
+
+sudo sed -i 's/#$nrconf{restart} = 'i';/$nrconf{restart} = 'a';/g' /etc/needrestart/needrestart.conf
+
 # Install VIM & Curl & Midnight Commander & Rsync
 
 sudo apt-get update && sudo apt-get upgrade -y
