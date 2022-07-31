@@ -3,17 +3,13 @@
 
 #####Variables#########
 
+secrets_url=https://keyvaultstorage227.blob.core.windows.net/blob-zabbixsecrets/zabbixsecrets.txt
 time_zone=America/New_York
 swap_file_size=1G
 mysql_root_password=
 mysql_zabbix_password=
 letsencrypt_email=
 letsencrypt_domain=
-
-# Pull in secrets from text file stored elsewhere
-wget https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/Zabbix/zabbixsecrets.txt
-
-source zabbixsecrets.txt
 
 #######General#############
 
@@ -34,6 +30,22 @@ echo "@reboot azureuser sudo fallocate -l 1G /swapfile && sudo chmod 600 /swapfi
 # Change Ubuntu needrestart behavior so that it does not restart daemons, so as to not freeze up the script
 
 sudo sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'l'"'"';/g' /etc/needrestart/needrestart.conf
+
+# Install Azure CLI
+
+curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+# Login to Azure using the VM's user assigned managed identity
+
+az login --identity
+
+# Download zabbixsecrets.txt file from private blob storage, authenticated using VM's user managed identity
+
+az storage blob download --blob-url $secrets_url --file zabbixsecrets.txt
+
+# Add zabbixsecrets.txt as a source, to pull in the variables contained within
+
+source zabbixsecrets.txt
 
 # Install VIM & Curl & Midnight Commander & Rsync
 

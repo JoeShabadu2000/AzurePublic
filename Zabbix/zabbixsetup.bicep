@@ -59,8 +59,8 @@ param nicIPConfigName string = 'nicipconfig-${projectName}'
 @description('Name to be used for the Virtual Machine')
 param vmName string = 'vm-${projectName}'
 
-@description('User managed identity connection object (passed from Powershell)')
-param managedidentityID object
+//@description('User managed identity connection object (passed from Powershell)')
+//param managedidentityID object
 
 @description('SKU to use for the VM hardware spec')
 @allowed([
@@ -198,14 +198,17 @@ resource nicResource 'Microsoft.Network/networkInterfaces@2022-01-01' = {
 //
 // Create Virtual Machine
 //
+// /subscriptions/d8fb35c9-d357-4d07-a0f1-b694659e32e4/resourceGroups/rg-usermanagedidentities/providers/Microsoft.ManagedIdentity/userAssignedIdentities/zabbix
 
 resource vmResource 'Microsoft.Compute/virtualMachines@2022-03-01' = {
   name: vmName
   location: projectLocation
   identity: {
     type: 'UserAssigned'
-    userAssignedIdentities: managedidentityID  
-  }
+    userAssignedIdentities: {
+      '/subscriptions/d8fb35c9-d357-4d07-a0f1-b694659e32e4/resourceGroups/rg-usermanagedidentities/providers/Microsoft.ManagedIdentity/userAssignedIdentities/zabbix':{}
+    }
+  }  
   properties: {
     hardwareProfile: {
       vmSize: vmSKU
