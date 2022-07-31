@@ -1,22 +1,30 @@
 ### Run this file inside the VM after it has been provisioned in Azure
 ### wget -O - https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/Zabbix/zabbixsetup-ubuntu2204.sh | sudo bash
+
+#####Variables#########
+
+time_zone=America/New_York
+swap_file_size=1G
+mysql_root_password=zabbixroot
+mysql_zabbix_password=zabbixdbpassword
+
 #######General#############
 
 # Open the following ports in Azure: 22, 80, 443, 10050, 10051
 
 # Set Time Zone to America/New_York
 
-sudo timedatectl set-timezone America/New_York
+sudo timedatectl set-timezone $time_zone
 
-# Set up 1GB swap file and enable
+# Set up swap file and enable
 
-sudo fallocate -l 1G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile
+sudo fallocate -l $swap_file_size /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile
 
-# Use crontab to add the 1GB swap file to reenable at reboot by adding the following line
+# Use crontab to add the swap file to reenable at reboot by adding the following line
 
-echo "@reboot root fallocate -l 1G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile" | sudo tee -a /etc/crontab
+echo "@reboot root fallocate -l $swap_file_size /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile" | sudo tee -a /etc/crontab
 
-# Change Ubuntu needrestart behavior so that it automatically restarts daemons, so as to not freeze up the script
+# Change Ubuntu needrestart behavior so that it does not restart daemons, so as to not freeze up the script
 
 sudo sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'l'"'"';/g' /etc/needrestart/needrestart.conf
 
@@ -47,13 +55,13 @@ sudo apt-get install mysql-server -y
 
 echo -e "[mysqld]\n\nskip-log-bin" | sudo tee -a /etc/init/mysql.conf
 
-# Set root password to zabbixroot
+# Set root password to mySQL
 
-sudo mysqladmin -u root password zabbixroot
+sudo mysqladmin -u root password $mysql_root_password
 
-# Create database named zabbix, user zabbix, password zabbixdbpassword
+# Create database named zabbix, user zabbix, and password specified at start of script
 
-sudo mysql -uroot -p'zabbixroot' -e "create database zabbix character set utf8mb4 collate utf8mb4_bin;create user zabbix@localhost identified by 'zabbixdbpassword';grant all privileges on zabbix.* to zabbix@localhost;SET GLOBAL log_bin_trust_function_creators = 1;"
+sudo mysql -uroot -p$mysql_root_password -e "create database zabbix character set utf8mb4 collate utf8mb4_bin;create user zabbix@localhost identified by '$mysql_zabbix_password';grant all privileges on zabbix.* to zabbix@localhost;SET GLOBAL log_bin_trust_function_creators = 1;"
 
 # Import schema into Zabbix database (may appear to hang, be patient)
 
@@ -71,18 +79,18 @@ sudo systemctl enable zabbix-server zabbix-agent apache2
 
 # Install Let's Encrypt certificate for frontend
 
-sudo apt-get install certbot python3-certbot-apache -y
+# sudo apt-get install certbot python3-certbot-apache -y
 
-sudo certbot --apache -m stuart@tabulait.com --agree-tos --non-interactive -d zabbix1.tabulait.com
+# sudo certbot --apache -m stuart@tabulait.com --agree-tos --non-interactive -d zabbix.tabulait.com
 
-# Point Apache directly to /usr/share/zabbix so that zabbix.tabulait.com takes you
+# Point Apache directly to /usr/share/zabbix so that your FQDN takes you
 # directly to the Zabbix interface
 
 sudo sed -i 's#DocumentRoot /var/www/html#DocumentRoot /usr/share/zabbix#g' /etc/apache2/sites-available/000-default-le-ssl.conf
 
 sudo systemctl restart apache2
 
-# You should be able to log in to web interface at zabbix.tabulait.com
+# You should be able to log in to web interface by going to your FQDN
 # Default u: Admin  p: zabbix
 
 

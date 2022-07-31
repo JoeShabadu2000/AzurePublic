@@ -1,5 +1,5 @@
 # General Variables
-$projectName = "zabbix1"
+$projectName = "zabbix"
 $projectLocation = "eastus"
 $subscriptionName = "Microsoft Partner Network"
 $rgName = "rg-$projectName"
