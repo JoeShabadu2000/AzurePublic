@@ -41,7 +41,7 @@ az login --identity
 
 # Download zabbixsecrets.txt file from private blob storage, authenticated using VM's user managed identity
 
-az storage blob download --blob-url $secrets_url --file zabbixsecrets.txt
+az storage blob download --auth-mode login --blob-url $secrets_url --file zabbixsecrets.txt
 
 # Add zabbixsecrets.txt as a source, to pull in the variables contained within
 
