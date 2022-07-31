@@ -59,6 +59,9 @@ param nicIPConfigName string = 'nicipconfig-${projectName}'
 @description('Name to be used for the Virtual Machine')
 param vmName string = 'vm-${projectName}'
 
+@description('User managed identity connection object (passed from Powershell)')
+param managedidentityID object
+
 @description('SKU to use for the VM hardware spec')
 @allowed([
   'Standard_B1s'
@@ -199,6 +202,10 @@ resource nicResource 'Microsoft.Network/networkInterfaces@2022-01-01' = {
 resource vmResource 'Microsoft.Compute/virtualMachines@2022-03-01' = {
   name: vmName
   location: projectLocation
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: managedidentityID  
+  }
   properties: {
     hardwareProfile: {
       vmSize: vmSKU
@@ -247,7 +254,7 @@ resource vmResource 'Microsoft.Compute/virtualMachines@2022-03-01' = {
 // Run Setup script in Ubuntu
 //
 
-resource vmSetupScriptResource 'Microsoft.Compute/virtualMachines/extensions@2021-11-01' = {
+/* resource vmSetupScriptResource 'Microsoft.Compute/virtualMachines/extensions@2021-11-01' = {
   location: projectLocation
   name: vmSetupScriptName
   parent: vmResource
@@ -261,3 +268,4 @@ resource vmSetupScriptResource 'Microsoft.Compute/virtualMachines/extensions@202
     }
   }
 }
+ */

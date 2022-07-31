@@ -10,6 +10,7 @@ mysql_zabbix_password=
 letsencrypt_email=
 letsencrypt_domain=
 
+# Pull in secrets from text file stored elsewhere
 wget https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/Zabbix/zabbixsecrets.txt
 
 source zabbixsecrets.txt
