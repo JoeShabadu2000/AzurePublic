@@ -22,7 +22,7 @@ sudo fallocate -l $swap_file_size /swapfile && sudo chmod 600 /swapfile && sudo 
 
 # Use crontab to add the swap file to reenable at reboot by adding the following line
 
-echo "@reboot root fallocate -l $swap_file_size /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile" | sudo tee -a /etc/crontab
+echo "@reboot azureuser sudo fallocate -l 1G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile" | sudo tee -a /etc/crontab
 
 # Change Ubuntu needrestart behavior so that it does not restart daemons, so as to not freeze up the script
 
@@ -98,6 +98,6 @@ sudo systemctl enable zabbix-server zabbix-agent apache2
 
 sudo mkdir /backup/ && sudo chmod 777 /backup/
 
-echo '00 02 * * * mysqldump --no-tablespaces -uzabbix -p'\'$mysql_zabbix_password\'' zabbix | gzip -c > /backup/ZabbixSQLBackup.`date +\%a`.sql.gz' | sudo tee -a /etc/crontab
+echo '00 02 * * * azureuser sudo mysqldump --no-tablespaces -uzabbix -p'zabbixdbpassword' zabbix | sudo gzip -c > /backup/ZabbixSQLBackup.`date +\%a`.sql.gz' | sudo tee -a /etc/crontab
 
-echo '00 02 * * * tar -zcf /backup/ZabbixConfigBackup.`date +\%a`.tar.gz -C /etc/zabbix/ .' | sudo tee -a /etc/crontab
+echo '00 02 * * * azureuser sudo tar -zcf /backup/ZabbixConfigBackup.`date +\%a`.tar.gz -C /etc/zabbix/ .' | sudo tee -a /etc/crontab
