@@ -247,7 +247,7 @@ resource vmResource 'Microsoft.Compute/virtualMachines@2022-03-01' = {
 // Run Setup script in Ubuntu
 //
 
-/* resource vmSetupScriptResource 'Microsoft.Compute/virtualMachines/extensions@2021-11-01' = {
+resource vmSetupScriptResource 'Microsoft.Compute/virtualMachines/extensions@2021-11-01' = {
   location: projectLocation
   name: vmSetupScriptName
   parent: vmResource
@@ -260,4 +260,4 @@ resource vmResource 'Microsoft.Compute/virtualMachines@2022-03-01' = {
       commandToExecute: vmSetupScriptCommand
     }
   }
-} */
+}
