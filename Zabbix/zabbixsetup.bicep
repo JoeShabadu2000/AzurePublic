@@ -247,13 +247,17 @@ resource vmResource 'Microsoft.Compute/virtualMachines@2022-03-01' = {
 // Run Setup script in Ubuntu
 //
 
-resource vmSetupScriptResource 'Microsoft.Compute/virtualMachines/runCommands@2022-03-01' = {
+/* resource vmSetupScriptResource 'Microsoft.Compute/virtualMachines/extensions@2021-11-01' = {
   location: projectLocation
   name: vmSetupScriptName
   parent: vmResource
   properties: {
-    source: {
-      script: vmSetupScriptCommand
+    publisher: 'Microsoft.Azure.Extensions'
+    type: 'CustomScript'
+    typeHandlerVersion: '2.1'
+    autoUpgradeMinorVersion: true
+    protectedSettings: {
+      commandToExecute: vmSetupScriptCommand
     }
   }
-}
+} */
