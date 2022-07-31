@@ -156,7 +156,7 @@ var nsgStandardRules = loadJsonContent('./nsgrules-standard.json', 'securityRule
 var nsgCustomRules = loadJsonContent('./nsgrules-zabbix.json', 'securityRules')
 
 // Create NSG
-resource nsgResource 'Microsoft.Network/networkSecurityGroups@2022-01-01' = {
+resource nsgResource 'Microsoft.Network/networkSecurityGroups@2021-03-01' = {
   name: nsgName
   location: projectLocation
   properties: {
