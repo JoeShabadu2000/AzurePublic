@@ -100,8 +100,8 @@ param vmManagedDiskType string = 'Premium_LRS'
 @description('Name of the VM Setup Script')
 param vmSetupScriptName string = 'vmSetupScript-${projectName}'
 
-@description('URI of the VM Setup script (passed from Powershell)')
-param vmSetupScriptURI string
+@description('Ubuntu BASH command to use when setting up VM (passed from Powershell)')
+param vmSetupScriptCommand string
 
 //
 // Create VNet and Subnet
@@ -247,13 +247,13 @@ resource vmResource 'Microsoft.Compute/virtualMachines@2022-03-01' = {
 // Run Setup script in Ubuntu
 //
 
-/* resource vmSetupScriptResource 'Microsoft.Compute/virtualMachines/runCommands@2022-03-01' = {
+resource vmSetupScriptResource 'Microsoft.Compute/virtualMachines/runCommands@2022-03-01' = {
   location: projectLocation
   name: vmSetupScriptName
   parent: vmResource
   properties: {
     source: {
-      scriptUri: vmSetupScriptURI
+      script: vmSetupScriptCommand
     }
   }
-} */
+}
