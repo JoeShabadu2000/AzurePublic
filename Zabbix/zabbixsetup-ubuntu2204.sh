@@ -22,6 +22,7 @@ sudo sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/
 
 # Install mySQL
 
+sudo apt-get update && sudo apt-get upgrade -y
 sudo apt-get install mysql-server -y
 
 # Edit MySQL config file to disable binary logging (to prevent log 
@@ -31,7 +32,6 @@ echo -e "[mysqld]\n\nskip-log-bin" | sudo tee -a /etc/init/mysql.conf
 
 # Install VIM & Curl & Midnight Commander & Rsync
 
-sudo apt-get update && sudo apt-get upgrade -y
 sudo apt-get install vim curl mc rsync -y
 
 # To change VIM color scheme settings
