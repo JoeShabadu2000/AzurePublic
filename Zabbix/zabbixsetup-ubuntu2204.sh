@@ -74,7 +74,7 @@ sudo systemctl enable zabbix-server zabbix-agent apache2
 
 sudo apt-get install certbot python3-certbot-apache -y
 
-sudo certbot --apache -m stuart@tabulait.com --agree-tos --non-interactive -d zabbix.tabulait.com
+sudo certbot --apache -m stuart@tabulait.com --agree-tos --non-interactive -d zabbix1.tabulait.com
 
 # Point Apache directly to /usr/share/zabbix so that zabbix.tabulait.com takes you
 # directly to the Zabbix interface
