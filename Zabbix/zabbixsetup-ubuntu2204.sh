@@ -5,10 +5,14 @@
 
 time_zone=America/New_York
 swap_file_size=1G
-mysql_root_password=zabbixroot
-mysql_zabbix_password=zabbixdbpassword
-letsencrypt_email=stuart@tabulait.com
-letsencrypt_domain=zabbix.tabulait.com
+mysql_root_password=
+mysql_zabbix_password=
+letsencrypt_email=
+letsencrypt_domain=
+
+wget https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/Zabbix/zabbixsecrets.txt
+
+source zabbixsecrets.txt
 
 #######General#############
 
