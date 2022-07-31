@@ -31,6 +31,15 @@ echo "colorscheme desert" | sudo tee -a /etc/vim/vimrc
 
 #######Install Zabbix#######
 
+# Install mySQL
+
+sudo apt-get install mysql mysql-server -y
+
+# Edit MySQL config file to disable binary logging (to prevent log 
+# files from getting too large)
+
+echo -e "[mysqld]\n\nskip-log-bin" | sudo tee -a /etc/init/mysql.conf
+
 # Install Zabbix Repo
 
 sudo wget https://repo.zabbix.com/zabbix/6.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_6.0-3+ubuntu22.04_all.deb && sudo dpkg -i zabbix-release_6.0-3+ubuntu22.04_all.deb && sudo apt update
@@ -38,11 +47,6 @@ sudo wget https://repo.zabbix.com/zabbix/6.0/ubuntu/pool/main/z/zabbix-release/z
 # Install Zabbix server, frontend, agent
 
 sudo apt-get install zabbix-server-mysql zabbix-frontend-php zabbix-apache-conf zabbix-sql-scripts zabbix-agent -y
-
-# Edit MySQL config file to disable binary logging (to prevent log 
-# files from getting too large)
-
-echo -e "[mysqld]\n\nskip-log-bin" | sudo tee -a /etc/init/mysql.conf
 
 # Set root password to zabbixroot
 
