@@ -55,7 +55,7 @@ sudo mysqladmin -u root password zabbixroot
 
 sudo mysql -uroot -p'zabbixroot' -e "create database zabbix character set utf8mb4 collate utf8mb4_bin;create user zabbix@localhost identified by 'zabbixdbpassword';grant all privileges on zabbix.* to zabbix@localhost;SET GLOBAL log_bin_trust_function_creators = 1;"
 
-# Import schema into Zabbix database
+# Import schema into Zabbix database (may appear to hang, be patient)
 
 sudo zcat /usr/share/doc/zabbix-sql-scripts/mysql/server.sql.gz | mysql -uzabbix -p'zabbixdbpassword' zabbix
 
