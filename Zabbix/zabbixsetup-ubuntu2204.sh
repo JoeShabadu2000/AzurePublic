@@ -65,11 +65,11 @@ sudo mysql -uroot -p$mysql_root_password -e "create database zabbix character se
 
 # Import schema into Zabbix database (may appear to hang, be patient)
 
-sudo zcat /usr/share/doc/zabbix-sql-scripts/mysql/server.sql.gz | mysql -uzabbix -p'zabbixdbpassword' zabbix
+sudo zcat /usr/share/doc/zabbix-sql-scripts/mysql/server.sql.gz | mysql -uzabbix -p$mysql_zabbix_password zabbix
 
 # Copy database password into zabbix config file
 
-sudo sed -i 's/# DBPassword=/DBPassword=zabbixdbpassword/g' /etc/zabbix/zabbix_server.conf
+sudo sed -i "s/# DBPassword=/DBPassword=$mysql_zabbix_password/g" "/etc/zabbix/zabbix_server.conf"
 
 # Start Zabbix server and agent processes
 
@@ -86,9 +86,9 @@ sudo systemctl enable zabbix-server zabbix-agent apache2
 # Point Apache directly to /usr/share/zabbix so that your FQDN takes you
 # directly to the Zabbix interface
 
-sudo sed -i 's#DocumentRoot /var/www/html#DocumentRoot /usr/share/zabbix#g' /etc/apache2/sites-available/000-default-le-ssl.conf
+# sudo sed -i 's#DocumentRoot /var/www/html#DocumentRoot /usr/share/zabbix#g' /etc/apache2/sites-available/000-default-le-ssl.conf
 
-sudo systemctl restart apache2
+# sudo systemctl restart apache2
 
 # You should be able to log in to web interface by going to your FQDN
 # Default u: Admin  p: zabbix
@@ -98,6 +98,6 @@ sudo systemctl restart apache2
 
 sudo mkdir /backup/ && sudo chmod 777 /backup/
 
-echo '00 02 * * * mysqldump --no-tablespaces -uzabbix -p'\''zabbixdbpassword'\'' zabbix | gzip -c > /backup/ZabbixSQLBackup.`date +\%a`.sql.gz' | sudo tee -a /etc/crontab
+echo '00 02 * * * mysqldump --no-tablespaces -uzabbix -p'\'$mysql_zabbix_password\'' zabbix | gzip -c > /backup/ZabbixSQLBackup.`date +\%a`.sql.gz' | sudo tee -a /etc/crontab
 
 echo '00 02 * * * tar -zcf /backup/ZabbixConfigBackup.`date +\%a`.tar.gz -C /etc/zabbix/ .' | sudo tee -a /etc/crontab
