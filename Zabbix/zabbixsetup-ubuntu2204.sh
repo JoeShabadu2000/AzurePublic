@@ -33,7 +33,7 @@ echo "colorscheme desert" | sudo tee -a /etc/vim/vimrc
 
 # Install mySQL
 
-sudo apt-get install mysql mysql-server -y
+sudo apt-get install mysql-server -y
 
 # Edit MySQL config file to disable binary logging (to prevent log 
 # files from getting too large)
