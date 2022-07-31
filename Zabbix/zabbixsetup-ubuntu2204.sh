@@ -20,6 +20,15 @@ echo "@reboot root fallocate -l 1G /swapfile && chmod 600 /swapfile && mkswap /s
 
 sudo sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/g' /etc/needrestart/needrestart.conf
 
+# Install mySQL
+
+sudo apt-get install mysql-server -y
+
+# Edit MySQL config file to disable binary logging (to prevent log 
+# files from getting too large)
+
+echo -e "[mysqld]\n\nskip-log-bin" | sudo tee -a /etc/init/mysql.conf
+
 # Install VIM & Curl & Midnight Commander & Rsync
 
 sudo apt-get update && sudo apt-get upgrade -y
@@ -30,15 +39,6 @@ sudo apt-get install vim curl mc rsync -y
 echo "colorscheme desert" | sudo tee -a /etc/vim/vimrc
 
 #######Install Zabbix#######
-
-# Install mySQL
-
-sudo apt-get install mysql-server -y
-
-# Edit MySQL config file to disable binary logging (to prevent log 
-# files from getting too large)
-
-echo -e "[mysqld]\n\nskip-log-bin" | sudo tee -a /etc/init/mysql.conf
 
 # Install Zabbix Repo
 
