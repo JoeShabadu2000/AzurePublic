@@ -7,6 +7,8 @@ time_zone=America/New_York
 swap_file_size=1G
 mysql_root_password=zabbixroot
 mysql_zabbix_password=zabbixdbpassword
+letsencrypt_email=stuart@tabulait.com
+letsencrypt_domain=zabbix.tabulait.com
 
 #######General#############
 
@@ -81,7 +83,7 @@ sudo systemctl enable zabbix-server zabbix-agent apache2
 
 # sudo apt-get install certbot python3-certbot-apache -y
 
-# sudo certbot --apache -m stuart@tabulait.com --agree-tos --non-interactive -d zabbix.tabulait.com
+# sudo certbot --apache -m $letsencrypt_email --agree-tos --non-interactive -d $letsencrypt_domain
 
 # Point Apache directly to /usr/share/zabbix so that your FQDN takes you
 # directly to the Zabbix interface
@@ -98,6 +100,6 @@ sudo systemctl enable zabbix-server zabbix-agent apache2
 
 sudo mkdir /backup/ && sudo chmod 777 /backup/
 
-echo '00 02 * * * azureuser sudo mysqldump --no-tablespaces -uzabbix -p'zabbixdbpassword' zabbix | sudo gzip -c > /backup/ZabbixSQLBackup.`date +\%a`.sql.gz' | sudo tee -a /etc/crontab
+echo '00 02 * * * azureuser sudo mysqldump --no-tablespaces -uzabbix -p'$mysql_zabbix_password' zabbix | sudo gzip -c > /backup/ZabbixSQLBackup.`date +\%a`.sql.gz' | sudo tee -a /etc/crontab
 
 echo '00 02 * * * azureuser sudo tar -zcf /backup/ZabbixConfigBackup.`date +\%a`.tar.gz -C /etc/zabbix/ .' | sudo tee -a /etc/crontab
