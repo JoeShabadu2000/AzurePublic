@@ -3,7 +3,7 @@
 
 #####Variables#########
 
-managed_identity_id=/subscriptions/d8fb35c9-d357-4d07-a0f1-b694659e32e4/resourcegroups/rg-usermanagedidentities/providers/Microsoft.ManagedIdentity/userAssignedIdentities/zabbix
+managed_identity_id=
 time_zone=America/New_York
 swap_file_size=1G
 keyvault_name=keyvault-zabbix
@@ -48,7 +48,7 @@ mysql_zabbix_password=$(az keyvault secret show --name mysql-zabbix-password --v
 
 letsencrypt_email=$(az keyvault secret show --name letsencrypt-email --vault-name $keyvault_name --query "value" | sed -e 's/^.//' -e 's/.$//')
 
-letsencrypt_domain=$(az keyvault secret show --name mysql-root-password --vault-name $keyvault_name --query "value" | sed -e 's/^.//' -e 's/.$//')
+letsencrypt_domain=$(az keyvault secret show --name letsencrypt-domain --vault-name $keyvault_name --query "value" | sed -e 's/^.//' -e 's/.$//')
 
 # Install VIM & Curl & Midnight Commander & Rsync
 

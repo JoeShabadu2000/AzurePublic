@@ -60,7 +60,7 @@ param nicIPConfigName string = 'nicipconfig-${projectName}'
 param vmName string = 'vm-${projectName}'
 
 @description('User managed identity connection object (passed from Powershell)')
-param managedentityID string
+param managedidentityID string
 
 @description('SKU to use for the VM hardware spec')
 @allowed([
@@ -100,7 +100,10 @@ param vmImageVersion string = 'latest'
 param vmManagedDiskType string = 'Premium_LRS'
 
 @description('Name of the VM Setup Script')
-param vmSetupScriptName string = 'vmSetupScript-${projectName}'
+param vmCustomScriptSetupName string = 'vmCustomScriptSetup-${projectName}'
+
+@description('Name of the VM Custom Variables Script')
+param vmCustomScriptVariablesName string = 'vmCustomScriptVariables-${projectName}'
 
 @description('Ubuntu BASH command to use when setting up VM (passed from Powershell)')
 param vmSetupScriptCommand string
@@ -205,7 +208,7 @@ resource vmResource 'Microsoft.Compute/virtualMachines@2022-03-01' = {
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
-      '${managedentityID}' :{}
+      '${managedidentityID}' :{}
     }
   }  
   properties: {
@@ -253,12 +256,32 @@ resource vmResource 'Microsoft.Compute/virtualMachines@2022-03-01' = {
 }
 
 //
+// Pass environment variables from Powershell into Ubuntu (user managed identity ID)
+//
+
+resource vmCustomScriptVariablesResource 'Microsoft.Compute/virtualMachines/extensions@2021-11-01' = {
+  location: projectLocation
+  name: vmCustomScriptVariablesName
+  parent: vmResource
+  properties: {
+    publisher: 'Microsoft.Azure.Extensions'
+    type: 'CustomScript'
+    typeHandlerVersion: '2.1'
+    autoUpgradeMinorVersion: true
+    protectedSettings: {
+      commandToExecute: 'echo "export managed_identity_id=${managedidentityID}" | sudo tee -a /etc/profile'
+    }
+  }
+}
+
+
+//
 // Run Setup script in Ubuntu
 //
 
-resource vmSetupScriptResource 'Microsoft.Compute/virtualMachines/extensions@2021-11-01' = {
+/* resource vmCustomScriptSetupResource 'Microsoft.Compute/virtualMachines/extensions@2021-11-01' = {
   location: projectLocation
-  name: vmSetupScriptName
+  name: vmCustomScriptSetupName
   parent: vmResource
   properties: {
     publisher: 'Microsoft.Azure.Extensions'
@@ -269,4 +292,4 @@ resource vmSetupScriptResource 'Microsoft.Compute/virtualMachines/extensions@202
       commandToExecute: vmSetupScriptCommand
     }
   }
-}
+} */
