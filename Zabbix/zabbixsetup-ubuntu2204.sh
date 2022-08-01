@@ -43,13 +43,17 @@ az login --identity -u $managed_identity_id
 # Pull secrets from Azure Keyvault (the sed section is to strip first and last characters (quotes) from the JSON output)
 
 mysql_root_password=$(az keyvault secret show --name mysql-root-password --vault-name $keyvault_name --query "value" | sed -e 's/^.//' -e 's/.$//')
+
 mysql_zabbix_password=$(az keyvault secret show --name mysql-zabbix-password --vault-name $keyvault_name --query "value" | sed -e 's/^.//' -e 's/.$//')
+
 letsencrypt_email=$(az keyvault secret show --name letsencrypt-email --vault-name $keyvault_name --query "value" | sed -e 's/^.//' -e 's/.$//')
+
 letsencrypt_domain=$(az keyvault secret show --name mysql-root-password --vault-name $keyvault_name --query "value" | sed -e 's/^.//' -e 's/.$//')
 
 # Install VIM & Curl & Midnight Commander & Rsync
 
 sudo apt-get update && sudo apt-get upgrade -y
+
 sudo apt-get install vim curl mc rsync -y
 
 # To change VIM color scheme settings
