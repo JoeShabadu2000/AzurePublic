@@ -60,7 +60,7 @@ param nicIPConfigName string = 'nicipconfig-${projectName}'
 param vmName string = 'vm-${projectName}'
 
 @description('User managed identity connection object (passed from Powershell)')
-param managedidentityID object
+param managedentityID string
 
 @description('SKU to use for the VM hardware spec')
 @allowed([
@@ -205,7 +205,9 @@ resource vmResource 'Microsoft.Compute/virtualMachines@2022-03-01' = {
   location: projectLocation
   identity: {
     type: 'UserAssigned'
-    userAssignedIdentities: managedidentityID
+    userAssignedIdentities: {
+      '${managedentityID}' :{}
+    }
   }  
   properties: {
     hardwareProfile: {
