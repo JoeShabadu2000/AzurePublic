@@ -3,9 +3,10 @@
 
 #####Variables#########
 
-secrets_url=https://keyvaultstorage227.blob.core.windows.net/blob-zabbixsecrets/zabbixsecrets.txt
+managed_identity_id=/subscriptions/d8fb35c9-d357-4d07-a0f1-b694659e32e4/resourcegroups/rg-usermanagedidentities/providers/Microsoft.ManagedIdentity/userAssignedIdentities/zabbix
 time_zone=America/New_York
 swap_file_size=1G
+keyvault_name=keyvault-zabbix
 mysql_root_password=
 mysql_zabbix_password=
 letsencrypt_email=
@@ -25,9 +26,9 @@ sudo fallocate -l $swap_file_size /swapfile && sudo chmod 600 /swapfile && sudo 
 
 # Use crontab to add the swap file to reenable at reboot by adding the following line
 
-echo "@reboot azureuser sudo fallocate -l 1G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile" | sudo tee -a /etc/crontab
+echo "@reboot azureuser sudo fallocate -l $swap_file_size /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile" | sudo tee -a /etc/crontab
 
-# Change Ubuntu needrestart behavior so that it does not restart daemons, so as to not freeze up the script
+# Change Ubuntu needrestart behavior so that it does not restart daemons, so as to not freeze up the setup script
 
 sudo sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'l'"'"';/g' /etc/needrestart/needrestart.conf
 
@@ -37,15 +38,14 @@ curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
 # Login to Azure using the VM's user assigned managed identity
 
-az login --identity
+az login --identity -u $managed_identity_id
 
-# Download zabbixsecrets.txt file from private blob storage, authenticated using VM's user managed identity
+# Pull secrets from Azure Keyvault (the sed section is to strip first and last characters (quotes) from the JSON output)
 
-az storage blob download --auth-mode login --blob-url $secrets_url --file zabbixsecrets.txt
-
-# Add zabbixsecrets.txt as a source, to pull in the variables contained within
-
-source zabbixsecrets.txt
+mysql_root_password=$(az keyvault secret show --name mysql-root-password --vault-name $keyvault_name --query "value" | sed -e 's/^.//' -e 's/.$//')
+mysql_zabbix_password=$(az keyvault secret show --name mysql-zabbix-password --vault-name $keyvault_name --query "value" | sed -e 's/^.//' -e 's/.$//')
+letsencrypt_email=$(az keyvault secret show --name letsencrypt-email --vault-name $keyvault_name --query "value" | sed -e 's/^.//' -e 's/.$//')
+letsencrypt_domain=$(az keyvault secret show --name mysql-root-password --vault-name $keyvault_name --query "value" | sed -e 's/^.//' -e 's/.$//')
 
 # Install VIM & Curl & Midnight Commander & Rsync
 

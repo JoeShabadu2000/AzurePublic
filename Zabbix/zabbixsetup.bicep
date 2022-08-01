@@ -90,7 +90,6 @@ param vmImageVersion string = 'latest'
 
 @description('Storage account type to use for the VM managed disk')
 @allowed([
-  'PremiumV2_LRS'
   'Premium_LRS'
   'Premium_ZRS'
   'StandardSSD_LRS'
