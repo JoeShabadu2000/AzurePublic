@@ -280,7 +280,7 @@ resource vmCustomScriptVariablesResource 'Microsoft.Compute/virtualMachines/exte
     typeHandlerVersion: '2.1'
     autoUpgradeMinorVersion: true
     protectedSettings: {
-      commandToExecute: 'echo "export managed_identity_id=${managedidentityID}\nexport time_zone=${vmTimeZone}\nexport swap_file_size=${vmSwapFileSize}\nexport keyvault_name=${vmKeyVaultName}" | sudo tee -a /etc/profile'
+      commandToExecute: 'echo "export managed_identity_id=${managedidentityID}\nexport time_zone=${vmTimeZone}\nexport swap_file_size=${vmSwapFileSize}\nexport keyvault_name=${vmKeyVaultName}" | sudo tee -a /etc/profile && ${vmSetupScriptCommand}'
     }
   }
 }
