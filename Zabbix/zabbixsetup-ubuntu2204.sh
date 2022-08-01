@@ -4,9 +4,9 @@
 #####Variables#########
 
 managed_identity_id=
-time_zone=America/New_York
-swap_file_size=1G
-keyvault_name=keyvault-zabbix
+time_zone=
+swap_file_size=
+keyvault_name=
 mysql_root_password=
 mysql_zabbix_password=
 letsencrypt_email=

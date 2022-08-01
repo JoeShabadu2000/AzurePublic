@@ -108,6 +108,17 @@ param vmCustomScriptVariablesName string = 'vmCustomScriptVariables-${projectNam
 @description('Ubuntu BASH command to use when setting up VM (passed from Powershell)')
 param vmSetupScriptCommand string
 
+// Parameters for Environment Variables to be passed into VM
+
+@description('Time zone to use inside of VM')
+param vmTimeZone string
+
+@description('Size of swap file to use in VM')
+param vmSwapFileSize string
+
+@description('Name of Key Vault to use for secrets retreival')
+param vmKeyVaultName string
+
 //
 // Create VNet and Subnet
 //
@@ -269,7 +280,7 @@ resource vmCustomScriptVariablesResource 'Microsoft.Compute/virtualMachines/exte
     typeHandlerVersion: '2.1'
     autoUpgradeMinorVersion: true
     protectedSettings: {
-      commandToExecute: 'echo "export managed_identity_id=${managedidentityID}" | sudo tee -a /etc/profile'
+      commandToExecute: 'echo "export managed_identity_id=${managedidentityID}\nexport time_zone=${vmTimeZone}\nexport swap_file_size=${vmSwapFileSize}\nexport keyvault_name=${vmKeyVaultName}" | sudo tee -a /etc/profile'
     }
   }
 }
