@@ -1,5 +1,5 @@
 ### Run this file inside the VM after it has been provisioned in Azure
-### wget -O - https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/Zabbix/zabbixsetup-ubuntu2204.sh | sudo bash
+### wget -O - https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/Zabbix/zabbixsetup-ubuntu2204.sh | bash
 
 #####Variables#########
 
