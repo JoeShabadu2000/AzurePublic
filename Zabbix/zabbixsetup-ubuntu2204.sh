@@ -3,10 +3,10 @@
 
 #####Variables#########
 
-managed_identity_id=
-time_zone=
-swap_file_size=
-keyvault_name=
+## managed_identity_id=
+## time_zone=
+## swap_file_size=
+## keyvault_name=
 mysql_root_password=
 mysql_zabbix_password=
 letsencrypt_email=
@@ -16,7 +16,7 @@ letsencrypt_domain=
 
 # Open the following ports in Azure: 22, 80, 443, 10050, 10051
 
-# Set Time Zone to America/New_York
+# Set Time Zone
 
 sudo timedatectl set-timezone $time_zone
 

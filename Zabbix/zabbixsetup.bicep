@@ -267,7 +267,7 @@ resource vmResource 'Microsoft.Compute/virtualMachines@2022-03-01' = {
 }
 
 //
-// Pass environment variables from Powershell into Ubuntu (user managed identity ID)
+// Pass environment variables from Powershell into Ubuntu
 //
 
 resource vmCustomScriptVariablesResource 'Microsoft.Compute/virtualMachines/extensions@2021-11-01' = {
@@ -290,7 +290,7 @@ resource vmCustomScriptVariablesResource 'Microsoft.Compute/virtualMachines/exte
 // Run Setup script in Ubuntu
 //
 
-/* resource vmCustomScriptSetupResource 'Microsoft.Compute/virtualMachines/extensions@2021-11-01' = {
+resource vmCustomScriptSetupResource 'Microsoft.Compute/virtualMachines/extensions@2021-11-01' = {
   location: projectLocation
   name: vmCustomScriptSetupName
   parent: vmResource
@@ -303,4 +303,4 @@ resource vmCustomScriptVariablesResource 'Microsoft.Compute/virtualMachines/exte
       commandToExecute: vmSetupScriptCommand
     }
   }
-} */
+}
