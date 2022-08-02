@@ -58,7 +58,7 @@ $managedidentityResourceGroup = "rg-usermanagedidentities"
 $managedidentityName = "elastic"
 
 # VM Setup Script Variables (passed into Bash using Custom Script Extension)
-$vmSetupScriptURL = "https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/Zabbix/zabbixsetup-ubuntu2204.sh"
+$vmSetupScriptURL = "https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/Elastic/elasticsetup-ubuntu2204.sh"
 $vmTimeZone = "America/New_York"
 $vmSwapFileSize = "4G"
 $vmKeyVaultName = "keyvault-elastic"

@@ -1,5 +1,5 @@
 ### Run this file inside the VM after it has been provisioned in Azure
-### wget -O - https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/Zabbix/zabbixsetup-ubuntu2204.sh | bash
+### wget -O - https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/Elastic/elasticsetup-ubuntu2204.sh | bash
 
 #####Variables#########
 
@@ -14,7 +14,7 @@ letsencrypt_domain=
 
 #######General#############
 
-# Open the following ports in Azure: 22, 80, 443, 10050, 10051
+# Open the following ports in Azure: 22, 80, 443, 5140
 
 # Set Time Zone
 
@@ -42,13 +42,13 @@ az login --identity -u $managed_identity_id
 
 # Pull secrets from Azure Keyvault (the sed section is to strip first and last characters (quotes) from the JSON output)
 
-mysql_root_password=$(az keyvault secret show --name mysql-root-password --vault-name $keyvault_name --query "value" | sed -e 's/^.//' -e 's/.$//')
+# mysql_root_password=$(az keyvault secret show --name mysql-root-password --vault-name $keyvault_name --query "value" | sed -e 's/^.//' -e 's/.$//')
 
-mysql_zabbix_password=$(az keyvault secret show --name mysql-zabbix-password --vault-name $keyvault_name --query "value" | sed -e 's/^.//' -e 's/.$//')
+# mysql_zabbix_password=$(az keyvault secret show --name mysql-zabbix-password --vault-name $keyvault_name --query "value" | sed -e 's/^.//' -e 's/.$//')
 
-letsencrypt_email=$(az keyvault secret show --name letsencrypt-email --vault-name $keyvault_name --query "value" | sed -e 's/^.//' -e 's/.$//')
+# letsencrypt_email=$(az keyvault secret show --name letsencrypt-email --vault-name $keyvault_name --query "value" | sed -e 's/^.//' -e 's/.$//')
 
-letsencrypt_domain=$(az keyvault secret show --name letsencrypt-domain --vault-name $keyvault_name --query "value" | sed -e 's/^.//' -e 's/.$//')
+# letsencrypt_domain=$(az keyvault secret show --name letsencrypt-domain --vault-name $keyvault_name --query "value" | sed -e 's/^.//' -e 's/.$//')
 
 # Install VIM & Curl & Midnight Commander & Rsync
 
@@ -60,46 +60,8 @@ sudo apt-get install vim curl mc rsync -y
 
 echo "colorscheme desert" | sudo tee -a /etc/vim/vimrc
 
-#######Install Zabbix#######
-
-# Install Zabbix Repo
-
-sudo wget https://repo.zabbix.com/zabbix/6.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_6.0-3+ubuntu22.04_all.deb && sudo dpkg -i zabbix-release_6.0-3+ubuntu22.04_all.deb && sudo apt update
-
-# Install Zabbix server, frontend, agent
-
-sudo apt-get install zabbix-server-mysql zabbix-frontend-php zabbix-apache-conf zabbix-sql-scripts zabbix-agent -y
-
-# Install mySQL server
-
-sudo apt-get install mysql-server -y
-
-# Edit MySQL config file to disable binary logging (to prevent log files from getting too large)
-
-echo -e "[mysqld]\n\nskip-log-bin" | sudo tee -a /etc/init/mysql.conf
-
-# Set root password to mySQL
-
-sudo mysqladmin -u root password $mysql_root_password
-
-# Create database named zabbix, user zabbix, and password specified at start of script
-
-sudo mysql -uroot -p$mysql_root_password -e "create database zabbix character set utf8mb4 collate utf8mb4_bin;create user zabbix@localhost identified by '$mysql_zabbix_password';grant all privileges on zabbix.* to zabbix@localhost;SET GLOBAL log_bin_trust_function_creators = 1;"
-
-# Import schema into Zabbix database (may appear to hang, be patient)
-
-sudo zcat /usr/share/doc/zabbix-sql-scripts/mysql/server.sql.gz | mysql -uzabbix -p$mysql_zabbix_password zabbix
-
-# Copy database password into zabbix config file
-
-sudo sed -i "s/# DBPassword=/DBPassword=$mysql_zabbix_password/g" "/etc/zabbix/zabbix_server.conf"
-
-# Start Zabbix server and agent processes
-
-sudo systemctl restart zabbix-server zabbix-agent apache2
-
-sudo systemctl enable zabbix-server zabbix-agent apache2
-
+############
+# Install 
 # Install Let's Encrypt certificate for frontend
 
 # sudo apt-get install certbot python3-certbot-apache -y
@@ -119,8 +81,8 @@ sudo systemctl enable zabbix-server zabbix-agent apache2
 
 # To Backup MySql database and config files every night
 
-sudo mkdir /backup/ && sudo chmod 777 /backup/
+# sudo mkdir /backup/ && sudo chmod 777 /backup/
 
-echo '00 02 * * * azureuser sudo mysqldump --no-tablespaces -uzabbix -p'$mysql_zabbix_password' zabbix | sudo gzip -c > /backup/ZabbixSQLBackup.`date +\%a`.sql.gz' | sudo tee -a /etc/crontab
+# echo '00 02 * * * azureuser sudo mysqldump --no-tablespaces -uzabbix -p'$mysql_zabbix_password' zabbix | sudo gzip -c > /backup/ZabbixSQLBackup.`date +\%a`.sql.gz' | sudo tee -a /etc/crontab
 
-echo '00 02 * * * azureuser sudo tar -zcf /backup/ZabbixConfigBackup.`date +\%a`.tar.gz -C /etc/zabbix/ .' | sudo tee -a /etc/crontab
+# echo '00 02 * * * azureuser sudo tar -zcf /backup/ZabbixConfigBackup.`date +\%a`.tar.gz -C /etc/zabbix/ .' | sudo tee -a /etc/crontab
