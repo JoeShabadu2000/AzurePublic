@@ -3,10 +3,10 @@
 
 #####Variables#########
 
-## managed_identity_id=
-## time_zone=
-## swap_file_size=
-## keyvault_name=
+managed_identity_id=$1
+time_zone=$2
+swap_file_size=$3
+keyvault_name=$4
 mysql_root_password=
 mysql_zabbix_password=
 letsencrypt_email=

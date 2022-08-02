@@ -100,15 +100,12 @@ param vmImageVersion string = 'latest'
 param vmManagedDiskType string = 'Premium_LRS'
 
 @description('Name of the VM Setup Script')
-param vmCustomScriptSetupName string = 'vmCustomScriptSetup-${projectName}'
+param vmCustomScriptName string = 'vmCustomScriptSetup-${projectName}'
 
-@description('Name of the VM Custom Variables Script')
-param vmCustomScriptVariablesName string = 'vmCustomScriptVariables-${projectName}'
+@description('URL of VM Setup Script (passed from Powershell)')
+param vmSetupScriptURL string
 
-@description('Ubuntu BASH command to use when setting up VM (passed from Powershell)')
-param vmSetupScriptCommand string
-
-// Parameters for Environment Variables to be passed into VM
+// Parameters for variables to be passed from Powershell into setup script
 
 @description('Time zone to use inside of VM')
 param vmTimeZone string
@@ -267,32 +264,12 @@ resource vmResource 'Microsoft.Compute/virtualMachines@2022-03-01' = {
 }
 
 //
-// Pass environment variables from Powershell script into Ubuntu
-//
-
-resource vmCustomScriptVariablesResource 'Microsoft.Compute/virtualMachines/extensions@2021-11-01' = {
-  location: projectLocation
-  name: vmCustomScriptVariablesName
-  parent: vmResource
-  properties: {
-    publisher: 'Microsoft.Azure.Extensions'
-    type: 'CustomScript'
-    typeHandlerVersion: '2.1'
-    autoUpgradeMinorVersion: true
-    protectedSettings: {
-      commandToExecute: 'echo "export managed_identity_id=${managedidentityID}\nexport time_zone=${vmTimeZone}\nexport swap_file_size=${vmSwapFileSize}\nexport keyvault_name=${vmKeyVaultName}" | sudo tee -a /etc/profile && ${vmSetupScriptCommand}'
-    }
-  }
-}
-
-
-//
 // Run Setup script in Ubuntu
 //
 
-/* resource vmCustomScriptSetupResource 'Microsoft.Compute/virtualMachines/extensions@2021-11-01' = {
+resource vmCustomScriptResource 'Microsoft.Compute/virtualMachines/extensions@2021-11-01' = {
   location: projectLocation
-  name: vmCustomScriptSetupName
+  name: vmCustomScriptName
   parent: vmResource
   properties: {
     publisher: 'Microsoft.Azure.Extensions'
@@ -300,7 +277,7 @@ resource vmCustomScriptVariablesResource 'Microsoft.Compute/virtualMachines/exte
     typeHandlerVersion: '2.1'
     autoUpgradeMinorVersion: true
     protectedSettings: {
-      commandToExecute: vmSetupScriptCommand
+      commandToExecute: 'wget -O - ${vmSetupScriptURL} | bash ${managedidentityID} ${vmTimeZone} ${vmSwapFileSize} ${vmKeyVaultName}'
     }
   }
-} */
+}

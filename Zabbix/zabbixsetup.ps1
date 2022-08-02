@@ -8,10 +8,12 @@ $rgName = "rg-$projectName"
 $vmName = "TA1-SV16-Zabbix"
 $sshkeyRgName = "rg-keyvault"  ## This is the name of the resource group that you store your SSH keys in
 $sshkeyName = "vmkey"  ## This is the name of the public SSH key you want to use for the VM
-$vmSetupScriptCommand = "wget -O - https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/Zabbix/zabbixsetup-ubuntu2204.sh | bash"
-$managedidentityID = "/subscriptions/d8fb35c9-d357-4d07-a0f1-b694659e32e4/resourceGroups/rg-usermanagedidentities/providers/Microsoft.ManagedIdentity/userAssignedIdentities/zabbix"
+$vmSetupScriptURL = "https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/Zabbix/zabbixsetup-ubuntu2204.sh"
+$managedidentityResourceGroup = "rg-usermanagedidentities"
+$managedidentityName = "zabbix"
 
-# VM Environment Variables (passed into /etc/profile using Linux Custom Script Extension)
+
+# VM Setup Script Variables (passed into Bash using Custom Script Extension)
 $vmTimeZone = "America/New_York"
 $vmSwapFileSize = "1G"
 $vmKeyVaultName = "keyvault-zabbix"
@@ -20,6 +22,10 @@ $vmKeyVaultName = "keyvault-zabbix"
 
 # Set Correct Subscription
 Set-AzContext $subscriptionName
+
+# Get Managed Identity ID
+
+$managedidentityID = Get-AzUserAssignedIdentity -Name $managedidentityName -ResourceGroupName $managedidentityResourceGroup
 
 # Create Resource Group
 New-AzResourceGroup -Name $rgName -Location $projectLocation
@@ -35,8 +41,8 @@ New-AzResourceGroupDeployment `
     -projectLocation $projectLocation `
     -vmName $vmName `
     -sshpublickey $sshkey.publicKey `
-    -vmSetupScriptCommand $vmSetupScriptCommand `
-    -managedidentityID $managedidentityID `
+    -vmSetupScriptURL $vmSetupScriptURL `
+    -managedidentityID $managedidentityID.Id `
     -vmTimeZone $vmTimeZone `
     -vmSwapFileSize $vmSwapFileSize `
     -vmKeyVaultName $vmKeyVaultName
