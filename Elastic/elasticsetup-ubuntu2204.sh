@@ -70,6 +70,12 @@ echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://arti
 
 sudo apt-get update && sudo apt-get install elasticsearch -y
 
+# Disable xpack security features
+
+sudo sed -i 's/xpack.security.enabled: true/xpack.security.enabled: false/g' /etc/elasticsearch/elasticsearch.yml
+
+# Start Elasticsearch service and set to start after reboot
+
 sudo /bin/systemctl daemon-reload && sudo /bin/systemctl start elasticsearch.service && sudo /bin/systemctl enable elasticsearch.service
 
 # To reset password of built-in elastic account
@@ -92,15 +98,15 @@ sudo sed -i 's/#server.host: "localhost"/server.host: 0.0.0.0/g' /etc/kibana/kib
 
 sudo systemctl enable kibana && sudo systemctl start kibana
 
-# Download IPTables, forward port 80 to 5601 for UniFi GUI
+# Download IPTables, forward port 80 to 5601 for Kibana GUI
 
 sudo apt install iptables
 
-sudo iptables -t nat -I PREROUTING -p tcp --dport 80 -j REDIRECT --to-ports 5601
+# sudo iptables -t nat -I PREROUTING -p tcp --dport 80 -j REDIRECT --to-ports 5601
 
 # Re-enable iptables routing after reboots by adding it to crontab
 
-echo "@reboot root iptables -t nat -I PREROUTING -p tcp --dport 80 -j REDIRECT --to-ports 5601" | sudo tee -a /etc/crontab
+# echo "@reboot root iptables -t nat -I PREROUTING -p tcp --dport 80 -j REDIRECT --to-ports 5601" | sudo tee -a /etc/crontab
 
 # To generate new enrollment token to connect with Elasticsearch
 # sudo /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s kibana
@@ -116,15 +122,6 @@ echo "@reboot root iptables -t nat -I PREROUTING -p tcp --dport 80 -j REDIRECT -
 
 # sudo certbot --apache -m $letsencrypt_email --agree-tos --non-interactive -d $letsencrypt_domain
 
-# Point Apache directly to /usr/share/zabbix so that your FQDN takes you
-# directly to the Zabbix interface
-
-# sudo sed -i 's#DocumentRoot /var/www/html#DocumentRoot /usr/share/zabbix#g' /etc/apache2/sites-available/000-default-le-ssl.conf
-
-# sudo systemctl restart apache2
-
-# You should be able to log in to web interface by going to your FQDN
-# Default u: Admin  p: zabbix
 
 
 # To Backup MySql database and config files every night
