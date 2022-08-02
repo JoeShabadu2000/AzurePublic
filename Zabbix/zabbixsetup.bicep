@@ -1,6 +1,6 @@
 // Script to deploy infrastructure in Azure to host Zabbix on a Linux VM 
 //
-// Sets up (in order):
+// Sets up:
 // Vnet and Subnet
 // Public IP
 // Network Security Group
