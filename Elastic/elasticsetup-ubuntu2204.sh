@@ -60,8 +60,37 @@ sudo apt-get install vim curl mc rsync -y
 
 echo "colorscheme desert" | sudo tee -a /etc/vim/vimrc
 
-############
-# Install 
+#########################
+# Install Elasticsearch #
+#########################
+
+# Install Open Java JDK & Nginx
+
+# sudo apt-get install default-jre default-jdk nginx -y
+
+# Install Elasticsearch
+
+wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
+
+echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/8.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-8.x.list
+
+sudo apt-get update && sudo apt-get install elasticsearch -y
+
+sudo /bin/systemctl daemon-reload
+
+sudo /bin/systemctl start elasticsearch.service
+
+sudo /bin/systemctl enable elasticsearch.service
+
+
+
+
+
+
+
+
+
+
 # Install Let's Encrypt certificate for frontend
 
 # sudo apt-get install certbot python3-certbot-apache -y
