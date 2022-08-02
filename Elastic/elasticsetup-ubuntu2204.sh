@@ -64,27 +64,46 @@ echo "colorscheme desert" | sudo tee -a /etc/vim/vimrc
 # Install Elasticsearch #
 #########################
 
-# Install Open Java JDK & Nginx
-
-# sudo apt-get install default-jre default-jdk nginx -y
-
-# Install Elasticsearch
-
 wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
 
 echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/8.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-8.x.list
 
 sudo apt-get update && sudo apt-get install elasticsearch -y
 
-sudo /bin/systemctl daemon-reload
+sudo /bin/systemctl daemon-reload && sudo /bin/systemctl start elasticsearch.service && sudo /bin/systemctl enable elasticsearch.service
 
-sudo /bin/systemctl start elasticsearch.service
+# To reset password of built-in elastic account
+# sudo /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic
+#
+# To confirm Elasticsearch is running (login with elastic password)
+# sudo curl --cacert /etc/elasticsearch/certs/http_ca.crt -u elastic https://localhost:9200
 
-sudo /bin/systemctl enable elasticsearch.service
+##################
+# Install Kibana #
+##################
 
+sudo apt-get install kibana -y
 
+# Edit Kibana config to allow connections from remote hosts
 
+sudo sed -i 's/#server.host: "localhost"/server.host: 0.0.0.0/g' /etc/kibana/kibana.yml
 
+# Enable and start Kibana
+
+sudo systemctl enable kibana && sudo systemctl start kibana
+
+# Download IPTables, forward port 80 to 5601 for UniFi GUI
+
+sudo apt install iptables
+
+sudo iptables -t nat -I PREROUTING -p tcp --dport 80 -j REDIRECT --to-ports 5601
+
+# Re-enable iptables routing after reboots by adding it to crontab
+
+echo "@reboot root iptables -t nat -I PREROUTING -p tcp --dport 80 -j REDIRECT --to-ports 5601" | sudo tee -a /etc/crontab
+
+# To generate new enrollment token to connect with Elasticsearch
+# sudo /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s kibana
 
 
 
