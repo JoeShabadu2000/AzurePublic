@@ -79,7 +79,7 @@ $sshkey = Get-AzSshKey -ResourceGroupName $sshkeyRgName -Name $sshkeyName
 # Get Managed Identity ID, allows for login to Azure AD to access Keyvault
 $managedidentityID = Get-AzUserAssignedIdentity -Name $managedidentityName -ResourceGroupName $managedidentityResourceGroup
 
-# Deploy Script using variables listed above
+# Deploy Bicep template using variables listed above
 New-AzResourceGroupDeployment `
     -ResourceGroupName $rgName `
     -TemplateFile "./zabbixsetup.bicep" `
