@@ -112,15 +112,15 @@ sudo apt install iptables
 # To generate new enrollment token to connect with Elasticsearch
 # sudo /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s kibana
 
-# Install Caddy & set to reverse proxy to Kibana
+# Install Caddy & set to reverse proxy HTTPS to Kibana
 
 sudo apt install -y debian-keyring debian-archive-keyring apt-transport-https
 curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
 curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list
 sudo apt update
 sudo apt install caddy
-sudo caddy reverse-proxy --from $fqdn --to 127.0.0.1:5601
-
+sudo caddy reverse-proxy --from $fqdn --to 127.0.0.1:5601 &
+echo "sudo caddy reverse-proxy --from $fqdn --to 127.0.0.1:5601 &" | sudo tee -a /etc/crontab
 
 # To Backup MySql database and config files every night
 
