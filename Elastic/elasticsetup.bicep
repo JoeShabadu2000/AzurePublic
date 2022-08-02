@@ -168,7 +168,7 @@ resource publicipResource 'Microsoft.Network/publicIPAddresses@2022-01-01' = {
 var nsgStandardRules = loadJsonContent('./nsgrules-standard.json', 'securityRules')
 
 // Load Zabbix specific NSG rules (10050, 10051) into variable
-var nsgCustomRules = loadJsonContent('./nsgrules-zabbix.json', 'securityRules')
+var nsgCustomRules = loadJsonContent('./nsgrules-elastic.json', 'securityRules')
 
 // Create NSG
 resource nsgResource 'Microsoft.Network/networkSecurityGroups@2021-03-01' = {
@@ -210,7 +210,6 @@ resource nicResource 'Microsoft.Network/networkInterfaces@2022-01-01' = {
 //
 // Create Virtual Machine
 //
-// /subscriptions/d8fb35c9-d357-4d07-a0f1-b694659e32e4/resourceGroups/rg-usermanagedidentities/providers/Microsoft.ManagedIdentity/userAssignedIdentities/zabbix
 
 resource vmResource 'Microsoft.Compute/virtualMachines@2022-03-01' = {
   name: vmName

@@ -61,7 +61,7 @@ $managedidentityName = "elastic"
 $vmSetupScriptURL = "https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/Zabbix/zabbixsetup-ubuntu2204.sh"
 $vmTimeZone = "America/New_York"
 $vmSwapFileSize = "4G"
-$vmKeyVaultName = "keyvault-zabbix"
+$vmKeyVaultName = "keyvault-elastic"
 
 ##################
 # Start of Setup #
@@ -82,7 +82,7 @@ $managedidentityID = Get-AzUserAssignedIdentity -Name $managedidentityName -Reso
 # Deploy Bicep template using variables listed above
 New-AzResourceGroupDeployment `
     -ResourceGroupName $rgName `
-    -TemplateFile "./zabbixsetup.bicep" `
+    -TemplateFile "./elasticsetup.bicep" `
     -projectName $projectName `
     -projectLocation $projectLocation `
     -vmName $vmName `
