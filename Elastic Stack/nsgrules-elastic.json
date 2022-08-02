@@ -1,0 +1,18 @@
+{
+    "securityRules": [
+      {
+        "name": "Allow_Logstash_5140_from_all",
+        "properties": {
+          "description": "Allow inbound Logstash 5140",
+          "protocol": "Tcp",
+          "sourceAddressPrefix": "*",
+          "sourcePortRange": "*",
+          "destinationAddressPrefix": "*",
+          "destinationPortRange": "5140",
+          "access": "Allow",
+          "priority": 200,
+          "direction": "Inbound"
+        }
+      }
+    ]
+  }
