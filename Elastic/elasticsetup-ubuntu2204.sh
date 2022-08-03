@@ -58,7 +58,7 @@ az keyvault secret download --name $ssl_cert_name --vault-name $keyvault_name --
 
 sudo openssl pkcs12 -in ./cert.pem -nokeys -out /etc/ssl/certs/elastic.crt -passin pass:
 
-sudo openssl pkcs12 -in ./cert.pem -nodes -out /etc/ssl/private/elastic.key -passin pass:
+sudo openssl pkcs12 -in ./cert.pem -nodes -nocerts -out /etc/ssl/private/elastic.key -passin pass:
 
 # cat ./cert.pem | head -c 1705 | sudo tee /etc/ssl/private/elastic.key
 

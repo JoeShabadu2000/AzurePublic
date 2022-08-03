@@ -1,3 +1,22 @@
+# Will generate an SSL cert through Let's Encrypt and store in Azure Keyvault
+#
+# Defaults to a B1s instance with 1 CPU and 1G RAM
+#
+# This script assumes you have:
+# - The SSH Key for console login pre-generated, with the public key stored in a separate resource group in the same subscription
+# - A "letsencrypt" user managed identity created in in a separate resource group in the same subscription
+# - An Azure Keyvault that:
+#    - Is set for Azure RBAC access (under Settings -> Access Policies)
+#    - Has the "letsencrypt" user managed identity assigned the Key Vault Adminstrator role on the Keyvault (Access control IAM)
+#    - Has 2 secrets pre-populated in the keyvault
+#      - letsencrypt-email
+#      - FQDN
+# - DNS records properly pointed to the FQDN you have specified
+#
+# JSON schema for certificates can be found with:
+# az keyvault certificate get-default-policy --scaffold
+
+
 #############
 # Variables #
 #############
