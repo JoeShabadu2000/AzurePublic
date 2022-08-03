@@ -20,7 +20,7 @@ $vmSetupScriptURL = "https://raw.githubusercontent.com/JoeShabadu2000/AzurePubli
 $vmTimeZone = "America/New_York"
 $vmSwapFileSize = "4G"
 $vmKeyVaultName = "keyvault-elastic"
-$vmSSLCertName = "sslcert-tabulaelastic"
+$vmSSLCertName = "sslcert-elastic"
 
 ##################
 # Start of Setup #

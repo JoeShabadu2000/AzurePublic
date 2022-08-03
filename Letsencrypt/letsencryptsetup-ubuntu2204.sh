@@ -37,9 +37,11 @@ curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
 az login --identity -u $managed_identity_id
 
-# Write managed identity id to the system profile so it becomes an available variable for future logins for any user
+# Write managed identity id & ssl cert name to the system profile so it becomes an available variable for future logins for any user
 
-echo "export managed_identity_id=$managed_identity_id" | sudo tee -a /etc/profile
+echo "export managed_identity_id=$managed_identity_id
+export ssl_cert_name=$ssl_cert_name
+export keyvault_name=$keyvault_name" | sudo tee -a /etc/profile
 
 # Edit .bashrc for azureuser so that it logs in to the managed identity any time the user is logged in
 
@@ -47,11 +49,11 @@ echo "az login --identity -u $managed_identity_id" | sudo tee -a /home/azureuser
 
 # Pull secrets from Azure Keyvault (the sed section is to strip first and last characters (quotes) from the JSON output)
 
-# mysql_root_password=$(az keyvault secret show --name mysql-root-password --vault-name $keyvault_name --query "value" | sed -e 's/^.//' -e 's/.$//')
+FQDN=$(az keyvault secret show --name FQDN --vault-name $keyvault_name --query "value" | sed -e 's/^.//' -e 's/.$//')
 
 # mysql_zabbix_password=$(az keyvault secret show --name mysql-zabbix-password --vault-name $keyvault_name --query "value" | sed -e 's/^.//' -e 's/.$//')
 
-# letsencrypt_email=$(az keyvault secret show --name letsencrypt-email --vault-name $keyvault_name --query "value" | sed -e 's/^.//' -e 's/.$//')
+letsencrypt_email=$(az keyvault secret show --name letsencrypt-email --vault-name $keyvault_name --query "value" | sed -e 's/^.//' -e 's/.$//')
 
 # letsencrypt_domain=$(az keyvault secret show --name letsencrypt-domain --vault-name $keyvault_name --query "value" | sed -e 's/^.//' -e 's/.$//')
 
@@ -69,14 +71,26 @@ echo "colorscheme desert" | sudo tee -a /etc/vim/vimrc
 # Generate Cert & Key #
 #######################
 
-# az keyvault certificate create --name $ssl_cert_name
-# {
-#     "policy": {
-#         "x509_props": {
-#           "subject": "CN=trstringer.com"
-#         },
-#         "issuer": {
-#           "name": "Unknown"
-#         }
-#     }
-# }
+# Generate Certificate Request through Keyvault
+
+az keyvault certificate create --vault-name $keyvault_name --name $ssl_cert_name --policy '{"x509CertificateProperties": {"subject":"CN='$FQDN'"},"issuerParameters": {"name": "Unknown"}}'
+
+# Retrieve CSR file that needs to be sent to certificate authority
+
+az keyvault certificate pending show --vault-name $keyvault_name --name $ssl_cert_name --query csr -o tsv | sudo tee ./cert.csr
+
+# Modify CSR File for Letsencrypt
+
+sed -i '1 s/^/-----BEGIN CERTIFICATE REQUEST-----\n/' ./cert.csr
+
+echo "-----END CERTIFICATE REQUEST-----" | sudo tee -a ./cert.csr
+
+# Install and run certbot to obtain certificates
+
+sudo apt-get install certbot -y
+
+sudo certbot certonly --standalone --agree-tos -n -m $letsencrypt_email --csr ./cert.csr -d $FQDN
+
+# Upload full certificate to keyvault
+
+az keyvault certificate pending merge --vault-name $keyvault_name --name $ssl_cert_name --file ./0001_chain.pem

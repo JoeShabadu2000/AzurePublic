@@ -52,13 +52,17 @@ echo "az login --identity -u $managed_identity_id" | sudo tee -a /home/$admin_us
 
 # Download SSL cert for HTTPS from Key Vault
 
-az keyvault secret download --name $ssl_cert_name --vault-name $keyvault_name --file ./cert.pem
+az keyvault secret download --name $ssl_cert_name --vault-name $keyvault_name --file ./cert.pem  --encoding base64
 
 # Split full cert PEM file into separate key and certificate files
 
-cat ./cert.pem | head -c 1705 | sudo tee /etc/ssl/private/elastic.key
+sudo openssl pkcs12 -in ./cert.pem -nokeys -out /etc/ssl/certs/elastic.crt -passin pass:
 
-cat ./cert.pem | tail -c +1705 | sudo tee /etc/ssl/certs/elastic.crt
+sudo openssl pkcs12 -in ./cert.pem -nodes -out /etc/ssl/private/elastic.key -passin pass:
+
+# cat ./cert.pem | head -c 1705 | sudo tee /etc/ssl/private/elastic.key
+
+# cat ./cert.pem | tail -c +1705 | sudo tee /etc/ssl/certs/elastic.crt
 
 # Pull secrets from Azure Keyvault (the sed section is to strip first and last characters (quotes) from the JSON output)
 
