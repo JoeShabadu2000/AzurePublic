@@ -19,7 +19,8 @@ $managedidentityName = "elastic"
 $vmSetupScriptURL = "https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/Elastic/elasticsetup-ubuntu2204.sh"
 $vmTimeZone = "America/New_York"
 $vmSwapFileSize = "4G"
-$vmKeyVaultName = "keyvault-elastic"
+$vmKeyVaultName = "keyvault-sslcerts"
+$vmSSLCertName = "sslcert-tabulaelastic"
 
 ##################
 # Start of Setup #
@@ -49,4 +50,5 @@ New-AzResourceGroupDeployment `
     -managedidentityID $managedidentityID.Id `
     -vmTimeZone $vmTimeZone `
     -vmSwapFileSize $vmSwapFileSize `
-    -vmKeyVaultName $vmKeyVaultName
+    -vmKeyVaultName $vmKeyVaultName `
+    -vmSSLCertName $vmSSLCertName

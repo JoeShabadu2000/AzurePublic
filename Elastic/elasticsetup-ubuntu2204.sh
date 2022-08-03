@@ -7,6 +7,8 @@ managed_identity_id=$1
 time_zone=$2
 swap_file_size=$3
 keyvault_name=$4
+admin_username=$5
+ssl_cert_name=$6
 mysql_root_password=
 mysql_zabbix_password=
 letsencrypt_email=
@@ -46,17 +48,17 @@ echo "export managed_identity_id=$managed_identity_id" | sudo tee -a /etc/profil
 
 # Edit .bashrc for azureuser so that it logs in to the managed identity any time the user is logged in
 
-echo "az login --identity -u $managed_identity_id" | sudo tee -a /home/azureuser/.bashrc
+echo "az login --identity -u $managed_identity_id" | sudo tee -a /home/$admin_username/.bashrc
 
 # Download SSL cert for HTTPS from Key Vault
 
-az keyvault secret download --name sslcert-tabulaelastic --vault-name keyvault-sslcerts --file ./cert.pem
+az keyvault secret download --name $ssl_cert_name --vault-name $keyvault_name --file ./cert.pem
 
 # Split full cert PEM file into separate key and certificate files
 
-cat ./cert1.pem | head -c 1705 | sudo tee etc/ssl/elastic.key
+cat ./cert.pem | head -c 1705 | sudo tee /etc/ssl/private/elastic.key
 
-cat ./cert1.pem | tail -c +1705 | sudo tee etc/ssl/elastic.crt
+cat ./cert.pem | tail -c +1705 | sudo tee /etc/ssl/certs/elastic.crt
 
 # Pull secrets from Azure Keyvault (the sed section is to strip first and last characters (quotes) from the JSON output)
 
@@ -77,6 +79,28 @@ sudo apt-get install vim curl mc rsync -y
 # To change VIM color scheme settings
 
 echo "colorscheme desert" | sudo tee -a /etc/vim/vimrc
+
+#################
+# Install Nginx #
+#################
+
+sudo apt-get install nginx -y
+
+echo "server {
+listen 443;
+ssl on;
+ssl_certificate /etc/ssl/certs/elastic.crt;
+ssl_certificate_key /etc/ssl/private/elastic.key;
+server_name tabulaelastic.eastus.cloudapp.azure.com;
+access_log /var/log/nginx/nginx.vhost.access.log;
+error_log /var/log/nginx/nginx.vhost.error.log;
+location / {
+root /var/www/html/;
+index index.html index.nginx-debian.html;
+}
+}" | sudo tee -a /etc/nginx/sites-available/default
+
+sudo systemctl restart nginx
 
 #########################
 # Install Elasticsearch #
@@ -106,15 +130,15 @@ sudo /bin/systemctl daemon-reload && sudo /bin/systemctl start elasticsearch.ser
 # Install Kibana #
 ##################
 
-# sudo apt-get install kibana -y
+sudo apt-get install kibana -y
 
 # Edit Kibana config to allow connections from remote hosts
 
-# sudo sed -i 's/#server.host: "localhost"/server.host: 0.0.0.0/g' /etc/kibana/kibana.yml
+sudo sed -i 's/#server.host: "localhost"/server.host: 0.0.0.0/g' /etc/kibana/kibana.yml
 
 # Enable and start Kibana
 
-# sudo systemctl enable kibana && sudo systemctl start kibana
+sudo systemctl enable kibana && sudo systemctl start kibana
 
 # Download IPTables, forward port 80 to 5601 for Kibana GUI
 

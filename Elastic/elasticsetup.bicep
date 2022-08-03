@@ -118,6 +118,9 @@ param vmSwapFileSize string
 @description('Name of Key Vault to use for secrets retreival')
 param vmKeyVaultName string
 
+@description('Name of the HTTPS SSL certificate stored in the Key Vault')
+param vmSSLCertName string
+
 //
 // Create VNet and Subnet
 //
@@ -278,7 +281,7 @@ resource vmCustomScriptResource 'Microsoft.Compute/virtualMachines/extensions@20
     typeHandlerVersion: '2.1'
     autoUpgradeMinorVersion: true
     protectedSettings: {
-      commandToExecute: 'wget -O setupscript.sh ${vmSetupScriptURL} && bash setupscript.sh ${managedidentityID} ${vmTimeZone} ${vmSwapFileSize} ${vmKeyVaultName}'
+      commandToExecute: 'wget -O setupscript.sh ${vmSetupScriptURL} && bash setupscript.sh ${managedidentityID} ${vmTimeZone} ${vmSwapFileSize} ${vmKeyVaultName} ${vmAdminUsername} ${vmSSLCertName}'
     }
   }
 }
