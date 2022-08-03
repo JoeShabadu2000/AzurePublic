@@ -102,7 +102,7 @@ param vmImageVersion string = 'latest'
 param vmManagedDiskType string = 'Premium_LRS'
 
 @description('Name of the VM Setup Script')
-param vmCustomScriptName string = 'vmCustomScriptSetup-${projectName}'
+param vmCustomScriptName string = 'vmCustomScript-${projectName}'
 
 @description('URL of VM Setup Script (passed from Powershell)')
 param vmSetupScriptURL string
