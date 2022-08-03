@@ -1,5 +1,5 @@
 ### Run this file inside the VM after it has been provisioned in Azure
-### wget -O - https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/Elastic/elasticsetup-ubuntu2204.sh | bash
+### wget -O - https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/Elastic/letsencryptsetup-ubuntu2204.sh | bash
 
 #####Variables#########
 
@@ -69,14 +69,14 @@ echo "colorscheme desert" | sudo tee -a /etc/vim/vimrc
 # Generate Cert & Key #
 #######################
 
-az keyvault certificate create --name $ssl_cert_name
-{
-    "policy": {
-        "x509_props": {
-          "subject": "CN=trstringer.com"
-        },
-        "issuer": {
-          "name": "Unknown"
-        }
-    }
-}
+# az keyvault certificate create --name $ssl_cert_name
+# {
+#     "policy": {
+#         "x509_props": {
+#           "subject": "CN=trstringer.com"
+#         },
+#         "issuer": {
+#           "name": "Unknown"
+#         }
+#     }
+# }

@@ -18,8 +18,9 @@ $managedidentityName = "letsencrypt"
 # VM Setup Script Variables (passed into Bash using Custom Script Extension)
 $vmSetupScriptURL = "https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/Letsencrypt/letsencryptsetup-ubuntu2204.sh"
 $vmTimeZone = "America/New_York"
-$vmSwapFileSize = "4G"
-$vmKeyVaultName = "keyvault-letsencrypt"
+$vmSwapFileSize = "1G"
+$vmKeyVaultName = "keyvault-elastic"
+$sslCertName = "sslcert-elastic"
 
 ##################
 # Start of Setup #
@@ -49,4 +50,5 @@ New-AzResourceGroupDeployment `
     -managedidentityID $managedidentityID.Id `
     -vmTimeZone $vmTimeZone `
     -vmSwapFileSize $vmSwapFileSize `
-    -vmKeyVaultName $vmKeyVaultName
+    -vmKeyVaultName $vmKeyVaultName `
+    -sslCertName $sslCertName

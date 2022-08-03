@@ -70,7 +70,7 @@ param managedidentityID string
   'Standard_B2s'
   'Standard_B2ms'
 ])
-param vmSKU string = 'Standard_B2s'
+param vmSKU string = 'Standard_B1s'
 
 @description('Username of the Linux administrator')
 param vmAdminUsername string = 'azureuser'
@@ -102,7 +102,7 @@ param vmImageVersion string = 'latest'
 param vmManagedDiskType string = 'Premium_LRS'
 
 @description('Name of the VM Setup Script')
-param vmCustomScriptName string = 'vmCustomScriptSetup-${projectName}'
+param vmCustomScriptName string = 'vmCustomScript-${projectName}'
 
 @description('URL of VM Setup Script (passed from Powershell)')
 param vmSetupScriptURL string
@@ -117,6 +117,9 @@ param vmSwapFileSize string
 
 @description('Name of Key Vault to use for secrets retreival')
 param vmKeyVaultName string
+
+@description('Name of the SSL cert to store/retrieve from Keyvault')
+param sslCertName string
 
 //
 // Create VNet and Subnet
@@ -275,7 +278,7 @@ resource vmCustomScriptResource 'Microsoft.Compute/virtualMachines/extensions@20
     typeHandlerVersion: '2.1'
     autoUpgradeMinorVersion: true
     protectedSettings: {
-      commandToExecute: 'wget -O setupscript.sh ${vmSetupScriptURL} && bash setupscript.sh ${managedidentityID} ${vmTimeZone} ${vmSwapFileSize} ${vmKeyVaultName}'
+      commandToExecute: 'wget -O setupscript.sh ${vmSetupScriptURL} && bash setupscript.sh ${managedidentityID} ${vmTimeZone} ${vmSwapFileSize} ${vmKeyVaultName} ${sslCertName}'
     }
   }
 }
