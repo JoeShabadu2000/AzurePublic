@@ -116,7 +116,7 @@ echo "server {
     server_name tabulaelastic.eastus.cloudapp.azure.com;
     access_log /var/log/nginx/nginx.vhost.access.log;
     error_log /var/log/nginx/nginx.vhost.error.log;
-    auth_basic "Restricted Access";
+    auth_basic \"Restricted Access\";
     auth_basic_user_file /etc/nginx/.htpasswd;
     location / {
         proxy_pass http://localhost:5601;

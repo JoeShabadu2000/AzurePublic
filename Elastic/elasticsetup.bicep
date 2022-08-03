@@ -286,9 +286,22 @@ resource vmCustomScriptResource 'Microsoft.Compute/virtualMachines/extensions@20
   }
 }
 
-/* resource vmCustomScriptDeploymentResource 'Microsoft.Resources/deployments@2021-01-01' = {
-  name: '2nd extension'
-  
+resource vmCustomScript2Resource 'Microsoft.Compute/virtualMachines/extensions@2021-11-01' = {
+  location: projectLocation
+  name: vmCustomScriptName
+  parent: vmResource
+  dependsOn: [
+    vmCustomScriptResource
+  ]
+  properties: {
+    publisher: 'Microsoft.Azure.Extensions'
+    type: 'CustomScript'
+    typeHandlerVersion: '2.1'
+    autoUpgradeMinorVersion: true
+    protectedSettings: {
+      commandToExecute: 'echo "2nd script success" | sudo tee /home/azureuser/success.txt'
+    }
+  }
 }
 
- */
+
