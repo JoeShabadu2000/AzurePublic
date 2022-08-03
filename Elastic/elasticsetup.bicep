@@ -285,3 +285,8 @@ resource vmCustomScriptResource 'Microsoft.Compute/virtualMachines/extensions@20
     }
   }
 }
+
+/* resource vmCustomScriptDeploymentResource 'Microsoft.Resources/deployments@2021-01-01' = {
+
+}
+ */
