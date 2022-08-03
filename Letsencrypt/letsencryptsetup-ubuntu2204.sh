@@ -7,14 +7,11 @@ managed_identity_id=$1
 time_zone=$2
 swap_file_size=$3
 keyvault_name=$4
-mysql_root_password=
-mysql_zabbix_password=
-letsencrypt_email=
-letsencrypt_domain=
+ssl_cert_name=$5
 
 #######General#############
 
-# Open the following ports in Azure: 22, 80, 443, 5140
+# Open the following ports in Azure: 22, 80, 443
 
 # Set Time Zone
 
@@ -72,3 +69,14 @@ echo "colorscheme desert" | sudo tee -a /etc/vim/vimrc
 # Generate Cert & Key #
 #######################
 
+az keyvault certificate create --name $ssl_cert_name
+{
+    "policy": {
+        "x509_props": {
+          "subject": "CN=trstringer.com"
+        },
+        "issuer": {
+          "name": "Unknown"
+        }
+    }
+}

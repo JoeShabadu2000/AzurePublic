@@ -172,7 +172,7 @@ resource nsgResource 'Microsoft.Network/networkSecurityGroups@2021-03-01' = {
   name: nsgName
   location: projectLocation
   properties: {
-    securityRules: concat(nsgStandardRules, nsgCustomRules)
+    securityRules: concat(nsgStandardRules)
   }
 }
 
