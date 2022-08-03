@@ -1,0 +1,46 @@
+{
+    "securityRules": [
+      {
+        "name": "Allow_HTTP_from_all",
+        "properties": {
+          "description": "Allow inbound HTTP",
+          "protocol": "Tcp",
+          "sourceAddressPrefix": "*",
+          "sourcePortRange": "*",
+          "destinationAddressPrefix": "*",
+          "destinationPortRange": "80",
+          "access": "Allow",
+          "priority": 100,
+          "direction": "Inbound"
+        }
+      },
+      {
+        "name": "Allow_HTTPS_from_all",
+        "properties": {
+          "description": "Allow inbound HTTPS",
+          "protocol": "Tcp",
+          "sourceAddressPrefix": "*",
+          "sourcePortRange": "*",
+          "destinationAddressPrefix": "*",
+          "destinationPortRange": "443",
+          "access": "Allow",
+          "priority": 101,
+          "direction": "Inbound"
+        }
+    },
+    {
+      "name": "Allow_SSH_from_all",
+      "properties": {
+        "description": "Allow inbound SSH",
+        "protocol": "Tcp",
+        "sourceAddressPrefix": "*",
+        "sourcePortRange": "*",
+        "destinationAddressPrefix": "*",
+        "destinationPortRange": "22",
+        "access": "Allow",
+        "priority": 102,
+        "direction": "Inbound"
+      }
+    }
+    ]
+  }

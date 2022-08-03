@@ -167,9 +167,6 @@ resource publicipResource 'Microsoft.Network/publicIPAddresses@2022-01-01' = {
 // Load Standard NSG Rules (22,80,443) into variable
 var nsgStandardRules = loadJsonContent('./nsgrules-standard.json', 'securityRules')
 
-// Load app specific NSG rules into variable
-var nsgCustomRules = loadJsonContent('./nsgrules-elastic.json', 'securityRules')
-
 // Create NSG
 resource nsgResource 'Microsoft.Network/networkSecurityGroups@2021-03-01' = {
   name: nsgName
