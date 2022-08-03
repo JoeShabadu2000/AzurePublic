@@ -288,7 +288,7 @@ resource vmCustomScriptResource 'Microsoft.Compute/virtualMachines/extensions@20
 
 resource vmCustomScript2Resource 'Microsoft.Compute/virtualMachines/extensions@2021-11-01' = {
   location: projectLocation
-  name: vmCustomScriptName
+  name: 'script2'
   parent: vmResource
   dependsOn: [
     vmCustomScriptResource
@@ -299,7 +299,7 @@ resource vmCustomScript2Resource 'Microsoft.Compute/virtualMachines/extensions@2
     typeHandlerVersion: '2.1'
     autoUpgradeMinorVersion: true
     protectedSettings: {
-      commandToExecute: 'echo "2nd script success" | sudo tee /home/azureuser/success.txt'
+      commandToExecute: 'touch /home/azureuser/success.txt'
     }
   }
 }
