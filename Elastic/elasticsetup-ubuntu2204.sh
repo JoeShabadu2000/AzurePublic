@@ -88,48 +88,45 @@ sudo apt-get install nginx apache2-utils -y
 
 # Set password for HTTPS access in Nginx
 
-# sudo htpasswd -b -c /etc/nginx/.htpasswd kibanaadmin password
+sudo htpasswd -b -c /etc/nginx/.htpasswd kibanaadmin password
 
 # Add HTTPS configuration to Nginx default sites
 
-echo "server {
-    listen 443;
-    ssl on;
-    ssl_certificate /etc/ssl/certs/elastic.crt;
-    ssl_certificate_key /etc/ssl/private/elastic.key;
-    server_name tabulaelastic.eastus.cloudapp.azure.com;
-    access_log /var/log/nginx/nginx.vhost.access.log;
-    error_log /var/log/nginx/nginx.vhost.error.log;
-    location / {
-        proxy_pass http://localhost:5601;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
-}" | sudo tee -a /etc/nginx/sites-available/default
-
 # echo "server {
-#     listen 443;
-#     ssl on;
+#     listen 443 ssl;
 #     ssl_certificate /etc/ssl/certs/elastic.crt;
 #     ssl_certificate_key /etc/ssl/private/elastic.key;
 #     server_name tabulaelastic.eastus.cloudapp.azure.com;
 #     access_log /var/log/nginx/nginx.vhost.access.log;
 #     error_log /var/log/nginx/nginx.vhost.error.log;
-#     auth_basic "Restricted Access";
-#     auth_basic_user_file /etc/nginx/.htpasswd;
 #     location / {
 #         proxy_pass http://localhost:5601;
 #         proxy_http_version 1.1;
-#         proxy_set_header Upgrade $http_upgrade;
+#         proxy_set_header Upgrade \$http_upgrade;
 #         proxy_set_header Connection 'upgrade';
-#         proxy_set_header Host $host;
-#         proxy_cache_bypass $http_upgrade;
+#         proxy_set_header Host \$host;
+#         proxy_cache_bypass \$http_upgrade;
 #     }
 # }" | sudo tee -a /etc/nginx/sites-available/default
 
+echo "server {
+    listen 443 ssl;
+    ssl_certificate /etc/ssl/certs/elastic.crt;
+    ssl_certificate_key /etc/ssl/private/elastic.key;
+    server_name tabulaelastic.eastus.cloudapp.azure.com;
+    access_log /var/log/nginx/nginx.vhost.access.log;
+    error_log /var/log/nginx/nginx.vhost.error.log;
+    auth_basic "Restricted Access";
+    auth_basic_user_file /etc/nginx/.htpasswd;
+    location / {
+        proxy_pass http://localhost:5601;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host \$host;
+        proxy_cache_bypass \$http_upgrade;
+    }
+}" | sudo tee -a /etc/nginx/sites-available/default
 
 # Redirect HTTP to HTTPS
 
