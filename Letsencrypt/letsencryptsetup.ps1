@@ -3,23 +3,23 @@
 #############
 
 # General Variables
-$projectName = "elastic"
+$projectName = "letsencrypt"
 $projectLocation = "eastus"
 $subscriptionName = "Microsoft Partner Network"
 $rgName = "rg-$projectName"
 
 # VM Creation Variables
-$vmName = "TA1-SV16-Elastic"
+$vmName = "TA1-SV99-Letsencrypt"
 $sshkeyRgName = "rg-keyvault"  ## Name of the resource group that you store your SSH keys in
 $sshkeyName = "vmkey"          ## Name of the public SSH key you want to use for the VM
 $managedidentityResourceGroup = "rg-usermanagedidentities"
-$managedidentityName = "elastic"
+$managedidentityName = "letsencrypt"
 
 # VM Setup Script Variables (passed into Bash using Custom Script Extension)
-$vmSetupScriptURL = "https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/Elastic/elasticsetup-ubuntu2204.sh"
+$vmSetupScriptURL = "https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/Letsencrypt/letsencryptsetup-ubuntu2204.sh"
 $vmTimeZone = "America/New_York"
 $vmSwapFileSize = "4G"
-$vmKeyVaultName = "keyvault-elastic"
+$vmKeyVaultName = "keyvault-letsencrypt"
 
 ##################
 # Start of Setup #
@@ -40,7 +40,7 @@ $managedidentityID = Get-AzUserAssignedIdentity -Name $managedidentityName -Reso
 # Deploy Bicep template using variables listed above
 New-AzResourceGroupDeployment `
     -ResourceGroupName $rgName `
-    -TemplateFile "./elasticsetup.bicep" `
+    -TemplateFile "./letsencryptsetup.bicep" `
     -projectName $projectName `
     -projectLocation $projectLocation `
     -vmName $vmName `
