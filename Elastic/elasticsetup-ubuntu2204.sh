@@ -7,7 +7,6 @@ managed_identity_id=$1
 time_zone=$2
 swap_file_size=$3
 keyvault_name=$4
-fqdn=$5
 mysql_root_password=
 mysql_zabbix_password=
 letsencrypt_email=
@@ -40,6 +39,14 @@ curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 # Login to Azure using the VM's user assigned managed identity
 
 az login --identity -u $managed_identity_id
+
+# Write managed identity id to the system profile so it becomes an available variable for future logins for any user
+
+echo "export managed_identity_id=$managed_identity_id" | sudo tee -a /etc/profile
+
+# Edit .bashrc for azureuser so that it logs in to the managed identity any time the user is logged in
+
+echo "az login --identity -u $managed_identity_id" | sudo tee -a /home/azureuser/.bashrc
 
 # Pull secrets from Azure Keyvault (the sed section is to strip first and last characters (quotes) from the JSON output)
 
