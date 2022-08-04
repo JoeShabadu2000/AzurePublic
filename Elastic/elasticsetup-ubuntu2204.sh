@@ -11,7 +11,9 @@ admin_username=$5
 ssl_cert_name=$6
 
 
-#######General#############
+#################
+# General Setup #
+#################
 
 # Open the following ports in Azure: 22, 80, 443, 5140
 
@@ -64,6 +66,8 @@ sudo openssl pkcs12 -in ./cert.pfx -noenc -nocerts -out /etc/ssl/private/elastic
 kibana_admin_username=$(az keyvault secret show --name kibana-admin-username --vault-name $keyvault_name --query "value" --output tsv)
 
 kibana_admin_password=$(az keyvault secret show --name kibana-admin-password --vault-name $keyvault_name --query "value" --output tsv)
+
+FQDN=$(az keyvault secret show --name FQDN --vault-name $keyvault_name --query "value" --output tsv)
 
 # Install VIM & Curl & Midnight Commander & Rsync
 
@@ -162,6 +166,8 @@ sudo apt-get install kibana -y
 # Edit Kibana config to allow connections from remote hosts
 
 sudo sed -i 's/#server.host: "localhost"/server.host: 0.0.0.0/g' /etc/kibana/kibana.yml
+
+sudo sed -i 's!#server.publicBaseUrl: ""!server.publicBaseUrl: "https://'$FQDN'"!g' /etc/kibana/kibana.yml
 
 # Enable and start Kibana
 
