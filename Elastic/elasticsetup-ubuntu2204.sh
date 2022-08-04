@@ -226,9 +226,21 @@ sudo sed -i 's/hosts: \[\"localhost:9200\"\]/#hosts: \[\"localhost:9200\"\]/g' /
 sudo sed -i 's/#output.logstash:/output.logstash:/g' /etc/filebeat/filebeat.yml
 sudo sed -i 's/#hosts: \[\"localhost:5044\"\]/hosts: \[\"localhost:5044\"\]/g' /etc/filebeat/filebeat.yml
 
-# Enable filebeat System module and connect to Elasticsearch and Kibana
+# Enable filebeat System module
 
-# sudo filebeat modules enable system
+sudo filebeat modules enable system
+
+# Enable filesets for system module
+
+sudo rm /etc/filebeat/modules.d/system.yml
+
+echo "- module: system
+  syslog:
+    enabled: true
+    var.paths: [\"/var/log/syslog\"]
+  auth:
+    enabled: true
+    var.paths: [\"/var/log/auth.log*\"]" | sudo tee /etc/filebeat/modules.d/system.yml
 
 # sudo filebeat setup --pipelines --modules system
 
