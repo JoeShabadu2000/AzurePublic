@@ -9,10 +9,7 @@ swap_file_size=$3
 keyvault_name=$4
 admin_username=$5
 ssl_cert_name=$6
-mysql_root_password=
-mysql_zabbix_password=
-letsencrypt_email=
-letsencrypt_domain=
+
 
 #######General#############
 
@@ -44,15 +41,15 @@ az login --identity -u $managed_identity_id
 
 # Write managed identity id to the system profile so it becomes an available variable for future logins for any user
 
-echo "export managed_identity_id=$managed_identity_id" | sudo tee -a /etc/profile
+echo "export managed_identity_id=$managed_identity_id
+export ssl_cert_name=$ssl_cert_name
+export keyvault_name=$keyvault_name" | sudo tee -a /etc/profile
 
 # Edit .bashrc for azureuser so that it logs in to the managed identity any time the user is logged in
 
 echo "az login --identity -u $managed_identity_id" | sudo tee -a /home/$admin_username/.bashrc
 
 # Download SSL cert for HTTPS from Key Vault
-
-# az keyvault secret download --name $ssl_cert_name --vault-name $keyvault_name --file ./cert.pem  --encoding utf-8
 
 az keyvault secret download --name $ssl_cert_name --vault-name $keyvault_name --file ./cert.pfx  --encoding base64
 
@@ -62,21 +59,11 @@ sudo openssl pkcs12 -in ./cert.pfx -clcerts -nokeys -out /etc/ssl/certs/elastic.
 
 sudo openssl pkcs12 -in ./cert.pfx -noenc -nocerts -out /etc/ssl/private/elastic.key -passin pass:
 
-# sudo sed -i '1,6d' /etc/ssl/private/elastic.key
+# Pull secrets from Azure Keyvault
 
-# cat ./cert.pem | head -c 1705 | sudo tee /etc/ssl/private/elastic.key
+kibana_admin_username=$(az keyvault secret show --name kibana-admin-username --vault-name $keyvault_name --query "value" --output tsv)
 
-# cat ./cert.pem | tail -c +1705 | sudo tee /etc/ssl/certs/elastic.crt
-
-# Pull secrets from Azure Keyvault (the sed section is to strip first and last characters (quotes) from the JSON output)
-
-# mysql_root_password=$(az keyvault secret show --name mysql-root-password --vault-name $keyvault_name --query "value" | sed -e 's/^.//' -e 's/.$//')
-
-# mysql_zabbix_password=$(az keyvault secret show --name mysql-zabbix-password --vault-name $keyvault_name --query "value" | sed -e 's/^.//' -e 's/.$//')
-
-# letsencrypt_email=$(az keyvault secret show --name letsencrypt-email --vault-name $keyvault_name --query "value" | sed -e 's/^.//' -e 's/.$//')
-
-# letsencrypt_domain=$(az keyvault secret show --name letsencrypt-domain --vault-name $keyvault_name --query "value" | sed -e 's/^.//' -e 's/.$//')
+kibana_admin_password=$(az keyvault secret show --name kibana-admin-password --vault-name $keyvault_name --query "value" --output tsv)
 
 # Install VIM & Curl & Midnight Commander & Rsync
 
@@ -96,26 +83,9 @@ sudo apt-get install nginx apache2-utils -y
 
 # Set password for HTTPS access in Nginx
 
-# sudo htpasswd -b -c /etc/nginx/.htpasswd kibanaadmin password
+sudo htpasswd -b -c /etc/nginx/.htpasswd $kibana_admin_username $kibana_admin_password
 
 # Add HTTPS configuration to Nginx default sites
-
-echo "server {
-    listen 443 ssl;
-    ssl_certificate /etc/ssl/certs/elastic.crt;
-    ssl_certificate_key /etc/ssl/private/elastic.key;
-    server_name elastic.tabulait.com;
-    access_log /var/log/nginx/nginx.vhost.access.log;
-    error_log /var/log/nginx/nginx.vhost.error.log;
-    location / {
-        proxy_pass http://localhost:5601;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade \$http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host \$host;
-        proxy_cache_bypass \$http_upgrade;
-    }
-}" | sudo tee -a /etc/nginx/sites-available/default
 
 # echo "server {
 #     listen 443 ssl;
@@ -124,8 +94,6 @@ echo "server {
 #     server_name elastic.tabulait.com;
 #     access_log /var/log/nginx/nginx.vhost.access.log;
 #     error_log /var/log/nginx/nginx.vhost.error.log;
-#     auth_basic \"Restricted Access\";
-#     auth_basic_user_file /etc/nginx/.htpasswd;
 #     location / {
 #         proxy_pass http://localhost:5601;
 #         proxy_http_version 1.1;
@@ -135,6 +103,25 @@ echo "server {
 #         proxy_cache_bypass \$http_upgrade;
 #     }
 # }" | sudo tee -a /etc/nginx/sites-available/default
+
+echo "server {
+    listen 443 ssl;
+    ssl_certificate /etc/ssl/certs/elastic.crt;
+    ssl_certificate_key /etc/ssl/private/elastic.key;
+    server_name elastic.tabulait.com;
+    access_log /var/log/nginx/nginx.vhost.access.log;
+    error_log /var/log/nginx/nginx.vhost.error.log;
+    auth_basic \"Restricted Access\";
+    auth_basic_user_file /etc/nginx/.htpasswd;
+    location / {
+        proxy_pass http://localhost:5601;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host \$host;
+        proxy_cache_bypass \$http_upgrade;
+    }
+}" | sudo tee -a /etc/nginx/sites-available/default
 
 # Redirect HTTP to HTTPS
 

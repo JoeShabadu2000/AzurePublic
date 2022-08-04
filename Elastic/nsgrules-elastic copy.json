@@ -13,6 +13,20 @@
           "priority": 200,
           "direction": "Inbound"
         }
+      },
+      {
+        "name": "Allow_Kibana_5601_from_all",
+        "properties": {
+          "description": "Allow inbound Kibana 5601",
+          "protocol": "Tcp",
+          "sourceAddressPrefix": "*",
+          "sourcePortRange": "*",
+          "destinationAddressPrefix": "*",
+          "destinationPortRange": "5601",
+          "access": "Allow",
+          "priority": 201,
+          "direction": "Inbound"
+        }
       }
     ]
   }
