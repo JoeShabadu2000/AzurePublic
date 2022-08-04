@@ -44,7 +44,7 @@ param publicipName string = 'publicip-${projectName}'
 param publicipSKU string = 'Basic'
 
 @description('Domain name for public IP (will concatenate [name].[region].cloudapp.azure.com)')
-param publicIPDomainName string = 'tabula${projectName}'
+param publicIPDomainName string = 'tabulaelastic'
 
 @description('Name of the Network Security Group')
 param nsgName string = 'nsg-${projectName}'
