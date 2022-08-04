@@ -94,3 +94,7 @@ sudo certbot certonly --standalone --agree-tos -n -m $letsencrypt_email --csr ./
 # Upload full certificate to keyvault
 
 az keyvault certificate pending merge --vault-name $keyvault_name --name $ssl_cert_name --file ./0001_chain.pem
+
+# To delete keys in Keyvault
+# az keyvault certificate delete --vault-name $keyvault_name --name $ssl_cert_name
+# az keyvault certificate purge --vault-name $keyvault_name --name $ssl_cert_name
