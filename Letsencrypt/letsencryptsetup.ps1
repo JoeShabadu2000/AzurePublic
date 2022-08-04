@@ -33,6 +33,7 @@ $sshkeyRgName = "rg-keyvault"  ## Name of the resource group that you store your
 $sshkeyName = "vmkey"          ## Name of the public SSH key you want to use for the VM
 $managedidentityResourceGroup = "rg-usermanagedidentities"
 $managedidentityName = "letsencrypt"
+$publicIPDomainName = "letsencrypt227"  ## DNS name for public IP (will concatenate [name].[region].cloudapp.azure.com) - must be global unique
 
 # VM Setup Script Variables (passed into Bash using Custom Script Extension)
 $vmSetupScriptURL = "https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/Letsencrypt/letsencryptsetup-ubuntu2204.sh"
@@ -70,4 +71,5 @@ New-AzResourceGroupDeployment `
     -vmTimeZone $vmTimeZone `
     -vmSwapFileSize $vmSwapFileSize `
     -vmKeyVaultName $vmKeyVaultName `
-    -sslCertName $sslCertName
+    -sslCertName $sslCertName `
+    -publicIPDomainName $publicIPDomainName
