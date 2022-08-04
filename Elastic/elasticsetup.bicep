@@ -286,7 +286,7 @@ resource vmCustomScriptResource 'Microsoft.Compute/virtualMachines/extensions@20
   }
 }
 
-resource vmCustomScript2Resource 'Microsoft.Compute/virtualMachines/extensions@2021-11-01' = {
+/* resource vmCustomScript2Resource 'Microsoft.Compute/virtualMachines/extensions@2021-11-01' = {
   location: projectLocation
   name: 'script2'
   parent: vmResource
@@ -302,6 +302,6 @@ resource vmCustomScript2Resource 'Microsoft.Compute/virtualMachines/extensions@2
       commandToExecute: 'touch /home/azureuser/success.txt'
     }
   }
-}
+} */
 
 
