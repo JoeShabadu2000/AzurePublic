@@ -232,15 +232,15 @@ sudo filebeat modules enable system
 
 # Enable filesets for system module
 
-sudo rm /etc/filebeat/modules.d/system.yml
+# sudo rm /etc/filebeat/modules.d/system.yml
 
-echo "- module: system
-  syslog:
-    enabled: true
-    var.paths: [\"/var/log/syslog\"]
-  auth:
-    enabled: true
-    var.paths: [\"/var/log/auth.log*\"]" | sudo tee /etc/filebeat/modules.d/system.yml
+# echo "- module: system
+#   syslog:
+#     enabled: true
+#     var.paths: [\"/var/log/syslog\"]
+#   auth:
+#     enabled: true
+#     var.paths: [\"/var/log/auth.log*\"]" | sudo tee /etc/filebeat/modules.d/system.yml
 
 # sudo filebeat setup --pipelines --modules system
 
