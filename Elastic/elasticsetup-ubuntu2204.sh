@@ -52,17 +52,17 @@ echo "az login --identity -u $managed_identity_id" | sudo tee -a /home/$admin_us
 
 # Download SSL cert for HTTPS from Key Vault
 
-az keyvault secret download --name $ssl_cert_name --vault-name $keyvault_name --file ./cert.pem  --encoding base64
+# az keyvault secret download --name $ssl_cert_name --vault-name $keyvault_name --file ./cert.pem  --encoding utf-8
+
+az keyvault secret download --name $ssl_cert_name --vault-name $keyvault_name --file ./cert.pfx  --encoding base64
 
 # Split full cert PEM file into separate key and certificate files
 
-sudo openssl pkcs12 -in ./cert.pem -nokeys -out /etc/ssl/certs/elastic.crt -passin pass:
+sudo openssl pkcs12 -in ./cert.pfx -clcerts -nokeys -out /etc/ssl/certs/elastic.crt -passin pass:
 
-sudo sed -i '68,71d;35,37d;1,3d' /etc/ssl/certs/elastic.crt
+sudo openssl pkcs12 -in ./cert.pfx -noenc -nocerts -out /etc/ssl/private/elastic.key -passin pass:
 
-sudo openssl pkcs12 -in ./cert.pem -nodes -nocerts -out /etc/ssl/private/elastic.key -passin pass:
-
-sudo sed -i '1,6d' /etc/ssl/private/elastic.key
+# sudo sed -i '1,6d' /etc/ssl/private/elastic.key
 
 # cat ./cert.pem | head -c 1705 | sudo tee /etc/ssl/private/elastic.key
 
@@ -96,36 +96,17 @@ sudo apt-get install nginx apache2-utils -y
 
 # Set password for HTTPS access in Nginx
 
-sudo htpasswd -b -c /etc/nginx/.htpasswd kibanaadmin password
+# sudo htpasswd -b -c /etc/nginx/.htpasswd kibanaadmin password
 
 # Add HTTPS configuration to Nginx default sites
-
-# echo "server {
-#     listen 443 ssl;
-#     ssl_certificate /etc/ssl/certs/elastic.crt;
-#     ssl_certificate_key /etc/ssl/private/elastic.key;
-#     server_name tabulaelastic.eastus.cloudapp.azure.com;
-#     access_log /var/log/nginx/nginx.vhost.access.log;
-#     error_log /var/log/nginx/nginx.vhost.error.log;
-#     location / {
-#         proxy_pass http://localhost:5601;
-#         proxy_http_version 1.1;
-#         proxy_set_header Upgrade \$http_upgrade;
-#         proxy_set_header Connection 'upgrade';
-#         proxy_set_header Host \$host;
-#         proxy_cache_bypass \$http_upgrade;
-#     }
-# }" | sudo tee -a /etc/nginx/sites-available/default
 
 echo "server {
     listen 443 ssl;
     ssl_certificate /etc/ssl/certs/elastic.crt;
     ssl_certificate_key /etc/ssl/private/elastic.key;
-    server_name tabulaelastic.eastus.cloudapp.azure.com;
+    server_name elastic.tabulait.com;
     access_log /var/log/nginx/nginx.vhost.access.log;
     error_log /var/log/nginx/nginx.vhost.error.log;
-    auth_basic \"Restricted Access\";
-    auth_basic_user_file /etc/nginx/.htpasswd;
     location / {
         proxy_pass http://localhost:5601;
         proxy_http_version 1.1;
@@ -135,6 +116,25 @@ echo "server {
         proxy_cache_bypass \$http_upgrade;
     }
 }" | sudo tee -a /etc/nginx/sites-available/default
+
+# echo "server {
+#     listen 443 ssl;
+#     ssl_certificate /etc/ssl/certs/elastic.crt;
+#     ssl_certificate_key /etc/ssl/private/elastic.key;
+#     server_name elastic.tabulait.com;
+#     access_log /var/log/nginx/nginx.vhost.access.log;
+#     error_log /var/log/nginx/nginx.vhost.error.log;
+#     auth_basic \"Restricted Access\";
+#     auth_basic_user_file /etc/nginx/.htpasswd;
+#     location / {
+#         proxy_pass http://localhost:5601;
+#         proxy_http_version 1.1;
+#         proxy_set_header Upgrade \$http_upgrade;
+#         proxy_set_header Connection 'upgrade';
+#         proxy_set_header Host \$host;
+#         proxy_cache_bypass \$http_upgrade;
+#     }
+# }" | sudo tee -a /etc/nginx/sites-available/default
 
 # Redirect HTTP to HTTPS
 
