@@ -217,4 +217,11 @@ sudo systemctl enable logstash
 # Install Filebeat on Local Server #
 ####################################
 
- # sudo apt-get install filebeat -y
+sudo apt-get install filebeat -y
+
+# Update Filebeat config to use Logstash instead of Elasticsearch
+
+# sudo sed -i 's/output.elasticsearch/#output.elasticsearch/g' /etc/filebeat/filebeat.yml
+# sudo sed -i 's! hosts: ["localhost:9200"]! #hosts: ["localhost:9200"]!g' /etc/filebeat/filebeat.yml
+# sudo sed -i 's/#output.logstash:/output.logstash:/g' /etc/filebeat/filebeat.yml
+# sudo sed -i 's/#hosts: ["localhost:5044"]/hosts: ["localhost:5044"]/g' /etc/filebeat/filebeat.yml
