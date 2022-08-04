@@ -175,3 +175,46 @@ sudo systemctl enable kibana && sudo systemctl start kibana
 
 # To generate new enrollment token to connect with Elasticsearch
 # sudo /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s kibana
+
+####################
+# Install Logstash #
+####################
+
+sudo apt-get install logstash -y
+
+# Create Logstash Beats import on port 5044
+
+echo "input {
+  beats {
+    port => 5044
+  }
+}" | sudo tee /etc/logstash/conf.d/02-beats-input.conf
+
+# Create Elasticsearch output, in an index named after the Beat used
+
+echo "output {
+  if [@metadata][pipeline] {
+	elasticsearch {
+  	hosts => [\"localhost:9200\"]
+  	manage_template => false
+  	index => \"%{[@metadata][beat]}-%{[@metadata][version]}-%{+YYYY.MM.dd}\"
+  	pipeline => \"%{[@metadata][pipeline]}\"
+	}
+  } else {
+	elasticsearch {
+  	hosts => [\"localhost:9200\"]
+  	manage_template => false
+  	index => \"%{[@metadata][beat]}-%{[@metadata][version]}-%{+YYYY.MM.dd}\"
+	}
+  }
+}" | sudo tee /etc/logstash/conf.d/30-elasticsearch-output.conf
+
+sudo systemctl start logstash
+
+sudo systemctl enable logstash
+
+####################################
+# Install Filebeat on Local Server #
+####################################
+
+ # sudo apt-get install filebeat -y
