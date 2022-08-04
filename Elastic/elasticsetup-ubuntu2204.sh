@@ -221,7 +221,22 @@ sudo apt-get install filebeat -y
 
 # Update Filebeat config to use Logstash instead of Elasticsearch
 
-# sudo sed -i 's/output.elasticsearch/#output.elasticsearch/g' /etc/filebeat/filebeat.yml
-# sudo sed -i 's! hosts: ["localhost:9200"]! #hosts: ["localhost:9200"]!g' /etc/filebeat/filebeat.yml
-# sudo sed -i 's/#output.logstash:/output.logstash:/g' /etc/filebeat/filebeat.yml
-# sudo sed -i 's/#hosts: ["localhost:5044"]/hosts: ["localhost:5044"]/g' /etc/filebeat/filebeat.yml
+sudo sed -i 's/output.elasticsearch/#output.elasticsearch/g' /etc/filebeat/filebeat.yml
+sudo sed -i 's/hosts: \[\"localhost:9200\"\]/#hosts: \[\"localhost:9200\"\]/g' /etc/filebeat/filebeat.yml
+sudo sed -i 's/#output.logstash:/output.logstash:/g' /etc/filebeat/filebeat.yml
+sudo sed -i 's/#hosts: \[\"localhost:5044\"\]/hosts: \[\"localhost:5044\"\]/g' /etc/filebeat/filebeat.yml
+
+# Enable filebeat System module and connect to Elasticsearch and Kibana
+
+# sudo filebeat modules enable system
+
+# sudo filebeat setup --pipelines --modules system
+
+# sudo filebeat setup --index-management -E output.logstash.enabled=false -E 'output.elasticsearch.hosts=["localhost:9200"]'
+
+# sudo filebeat setup -E output.logstash.enabled=false -E output.elasticsearch.hosts=['localhost:9200'] -E setup.kibana.host=localhost:5601
+
+# # Start and enable Filebeat
+
+# sudo systemctl start filebeat
+# sudo systemctl enable filebeat
