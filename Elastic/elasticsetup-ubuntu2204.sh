@@ -228,7 +228,7 @@ sudo sed -i 's/#hosts: \[\"localhost:5044\"\]/hosts: \[\"localhost:5044\"\]/g' /
 
 # Enable filebeat System module
 
-sudo filebeat modules enable system
+# sudo filebeat modules enable system
 
 # Enable filesets for system module
 
