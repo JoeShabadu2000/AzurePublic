@@ -3,7 +3,7 @@
 #############
 
 # General Variables
-$projectName = "elastic"
+$projectName = "elastic1"
 $projectLocation = "eastus"
 $subscriptionName = "Microsoft Partner Network"
 $rgName = "rg-$projectName"

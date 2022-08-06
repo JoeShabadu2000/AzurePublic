@@ -230,23 +230,11 @@ sudo sed -i 's/#hosts: \[\"localhost:5044\"\]/hosts: \[\"localhost:5044\"\]/g' /
 
 # sudo filebeat modules enable system
 
-# Enable filesets for system module
+# sudo filebeat setup --pipelines --modules system -M "system.syslog.var.paths=[/var/log/syslog*]" -M "system.auth.var.paths=[/var/log/auth.log*]"
 
-# sudo rm /etc/filebeat/modules.d/system.yml
+# sudo filebeat setup --index-management -E output.logstash.enabled=false -E 'output.elasticsearch.hosts=["localhost:9200"]' -E setup.ilm.overwrite=true
 
-# echo "- module: system
-#   syslog:
-#     enabled: true
-#     var.paths: [\"/var/log/syslog\"]
-#   auth:
-#     enabled: true
-#     var.paths: [\"/var/log/auth.log*\"]" | sudo tee /etc/filebeat/modules.d/system.yml
-
-# sudo filebeat setup --pipelines --modules system
-
-# sudo filebeat setup --index-management -E output.logstash.enabled=false -E 'output.elasticsearch.hosts=["localhost:9200"]'
-
-# sudo filebeat setup -E output.logstash.enabled=false -E output.elasticsearch.hosts=['localhost:9200'] -E setup.kibana.host=localhost:5601
+# sudo filebeat setup -E output.logstash.enabled=false -E output.elasticsearch.hosts=['localhost:9200'] -E setup.kibana.host=localhost:5601 -E setup.ilm.overwrite=true
 
 # # Start and enable Filebeat
 

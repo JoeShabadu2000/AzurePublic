@@ -55,6 +55,36 @@ param nicName string = 'nic-${projectName}'
 @description('Name of the NIC IP configuration')
 param nicIPConfigName string = 'nicipconfig-${projectName}'
 
+// Load Balancer Parameters
+@description('Name to use for the load balancer')
+param loadbalancerName string = 'lb-${projectName}'
+
+@description('Name of the SKU of the load balancer')
+@allowed([
+  'Basic'
+  'Standard'
+])
+param loadbalancerSKUName string = 'Basic'
+
+@description('Name of the Tier of the load balancer')
+@allowed([
+  'Regional'
+  'Global'
+])
+param loadbalancerSKUTier string = 'Regional'
+
+@description('Name to use for the Frontend IP Configuration associated with the load balancer')
+param loadbalancerFrontEndIPConfigName string = 'frontendipconfig-${projectName}'
+
+@description('Name to use for the Backend Address Pool associated with the load balancer')
+param loadbalancerBackendAddressPoolName string = 'backendaddresspool-${projectName}'
+
+@description('Name of the probe used to check health of backend VMs')
+param loadbalancerProbeName string = 'probe-${projectName}'
+
+@description('Name to use for the load balancing rules')
+param loadbalancerLoadBalancingRules string = 'loadbalancerrules-${projectName}'
+
 // VM Parameters
 @description('Name to be used for the Virtual Machine')
 param vmName string = 'vm-${projectName}'
@@ -147,7 +177,7 @@ module vnetResource 'br/public:network/virtual-network:1.0.2' = {
 // Create Public IP
 //
 
-resource publicipResource 'Microsoft.Network/publicIPAddresses@2022-01-01' = {
+resource publicipResource 'Microsoft.Network/publicIPAddresses@2021-03-01' = {
   name: publicipName
   dependsOn: [
     vnetResource
@@ -182,9 +212,72 @@ resource nsgResource 'Microsoft.Network/networkSecurityGroups@2021-03-01' = {
   }
 }
 
+//
+// Create Load Balancer, associate with existing NSG and public IP
+//
+
+resource loadbalancerResource 'Microsoft.Network/loadBalancers@2021-02-01' = {
+  name: loadbalancerName
+  location: projectLocation
+  dependsOn: [
+    vnetResource
+    nsgResource
+  ]
+  sku: {
+    name: loadbalancerSKUName
+    tier: loadbalancerSKUTier
+  }
+  properties: {
+    backendAddressPools: [
+      {
+        name: loadbalancerBackendAddressPoolName
+      }
+    ]
+    frontendIPConfigurations: [
+      {
+        name: loadbalancerFrontEndIPConfigName
+        properties: {
+          publicIPAddress: publicipResource
+        }
+      }
+    ]
+    probes: [
+      {
+        name: loadbalancerProbeName
+        properties: {
+          protocol: 'Tcp'
+          port: 80
+          intervalInSeconds: 15
+          numberOfProbes: 2
+        }
+      }
+    ]
+    loadBalancingRules: [
+      {
+        name: loadbalancerLoadBalancingRules
+        properties: {
+          frontendIPConfiguration: {
+            id: resourceId('Microsoft.Network/loadBalancers/frontendIpConfigurations', loadbalancerName, loadbalancerFrontEndIPConfigName)
+          }
+          backendAddressPool: {
+            id: resourceId('Microsoft.Network/loadBalancers/backendAddressPools', loadbalancerName, loadbalancerBackendAddressPoolName)
+          }
+          probe: {
+            id: resourceId('Microsoft.Network/loadBalancers/probes', loadbalancerName, loadbalancerProbeName)
+          }
+          protocol: 'Tcp'
+          frontendPort: 80
+          backendPort: 80
+          idleTimeoutInMinutes: 15
+        }
+      }
+    ]
+  }
+}
+
 
 //
-// Create NIC, link with existing NSG and public IP
+// Create NIC, link with existing NSG, place into load balancer backend pool
 //
 
 resource nicResource 'Microsoft.Network/networkInterfaces@2022-01-01' = {
@@ -198,6 +291,7 @@ resource nicResource 'Microsoft.Network/networkInterfaces@2022-01-01' = {
       {
         name: nicIPConfigName
         properties: {
+          loadBalancerBackendAddressPools: loadbalancerResource.properties.backendAddressPools
           publicIPAddress: {
             id: publicipResource.id
           }
@@ -271,7 +365,7 @@ resource vmResource 'Microsoft.Compute/virtualMachines@2022-03-01' = {
 // Run Setup script in Ubuntu
 //
 
-resource vmCustomScriptResource 'Microsoft.Compute/virtualMachines/extensions@2021-11-01' = {
+/* resource vmCustomScriptResource 'Microsoft.Compute/virtualMachines/extensions@2021-11-01' = {
   location: projectLocation
   name: vmCustomScriptName
   parent: vmResource
@@ -284,7 +378,7 @@ resource vmCustomScriptResource 'Microsoft.Compute/virtualMachines/extensions@20
       commandToExecute: 'wget -O setupscript.sh ${vmSetupScriptURL} && bash setupscript.sh ${managedidentityID} ${vmTimeZone} ${vmSwapFileSize} ${vmKeyVaultName} ${vmAdminUsername} ${vmSSLCertName}'
     }
   }
-}
+} */
 
 /* resource vmCustomScript2Resource 'Microsoft.Compute/virtualMachines/extensions@2021-11-01' = {
   location: projectLocation
