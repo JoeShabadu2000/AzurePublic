@@ -72,17 +72,17 @@ echo "colorscheme desert" | sudo tee -a /etc/vim/vimrc
 
 # Generate Certificate Request through Keyvault
 
-# az keyvault certificate create --vault-name $keyvault_name --name $ssl_cert_name --policy '{"x509CertificateProperties": {"subject":"CN='*.$FQDN'"},"issuerParameters": {"name": "Unknown"}}'
+az keyvault certificate create --vault-name $keyvault_name --name $ssl_cert_name --policy '{"x509CertificateProperties": {"subject":"CN='*.$FQDN'"},"issuerParameters": {"name": "Unknown"}}'
 
 # Retrieve CSR file that needs to be sent to certificate authority
 
-# az keyvault certificate pending show --vault-name $keyvault_name --name $ssl_cert_name --query csr -o tsv | sudo tee ./cert.csr
+az keyvault certificate pending show --vault-name $keyvault_name --name $ssl_cert_name --query csr -o tsv | sudo tee ./cert.csr
 
 # Modify CSR File for Letsencrypt
 
-# sed -i '1 s/^/-----BEGIN CERTIFICATE REQUEST-----\n/' ./cert.csr
+sed -i '1 s/^/-----BEGIN CERTIFICATE REQUEST-----\n/' ./cert.csr
 
-# echo "-----END CERTIFICATE REQUEST-----" | sudo tee -a ./cert.csr
+echo "-----END CERTIFICATE REQUEST-----" | sudo tee -a ./cert.csr
 
 # Install certbot and pip, use pip to install certbot Azure DNS plugin
 
