@@ -285,5 +285,3 @@ resource vmCustomScriptResource 'Microsoft.Compute/virtualMachines/extensions@20
     }
   }
 }
-
-// commandToExecute: 'wget -O setupscript.sh ${vmSetupScriptURL} && bash setupscript.sh ${managedidentityID} ${vmTimeZone} ${vmSwapFileSize} ${vmKeyVaultName} ${sslCertName} ${managedidentityClientID} ${dnsRgID}'

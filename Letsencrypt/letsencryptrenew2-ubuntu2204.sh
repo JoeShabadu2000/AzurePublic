@@ -18,7 +18,7 @@ dns_rg_id=$6
 
 sudo timedatectl set-timezone $time_zone
 
-# Set up swap file and enable
+# Set swap file size to equal system memory size, and enable
 
 swap_file_size=$(grep MemTotal /proc/meminfo | awk '{print $2}')K
 

@@ -35,7 +35,7 @@ $managedidentityName = "letsencrypt"
 $publicIPDomainName = "letsencrypt228"  ## DNS name for public IP (will concatenate [name].[region].cloudapp.azure.com) - must be global unique
 
 # VM Setup Script Variables (passed into Bash using Custom Script Extension)
-$vmSetupScriptURL = "https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/Letsencrypt/letsencryptrenew2-ubuntu2204.sh"
+$vmSetupScriptURL = "https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/Letsencrypt/letsencryptrenew-ubuntu2204.sh"
 $vmTimeZone = "America/New_York"
 $vmKeyVaultName = "keyvault-tabulaxyz"  ## Name of the keyvault that stores the Secrets, and also where the SSL Cert will be stored
 $sslCertName = "sslcert-tabulaxyz"  ## Name to use in Azure for the SSL Cert

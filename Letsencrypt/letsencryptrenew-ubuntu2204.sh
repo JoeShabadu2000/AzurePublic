@@ -1,15 +1,14 @@
 ### Run this file inside the VM after it has been provisioned in Azure
-### wget -O - https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/Elastic/letsencryptsetup-ubuntu2204.sh | bash
+### wget -O - https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/Elastic/letsencryptrenew-ubuntu2204.sh | bash
 
 #####Variables#########
 
 managed_identity_id=$1
 time_zone=$2
-swap_file_size=$3
-keyvault_name=$4
-ssl_cert_name=$5
-managed_identity_clientid=$6
-dns_rg_id=$7
+keyvault_name=$3
+ssl_cert_name=$4
+managed_identity_clientid=$5
+dns_rg_id=$6
 
 #######General#############
 
@@ -19,7 +18,9 @@ dns_rg_id=$7
 
 sudo timedatectl set-timezone $time_zone
 
-# Set up swap file and enable
+# Set swap file size to equal system memory size, and enable
+
+swap_file_size=$(grep MemTotal /proc/meminfo | awk '{print $2}')K
 
 sudo fallocate -l $swap_file_size /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile
 
@@ -33,9 +34,7 @@ sudo sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'l'"'"';/
 
 # Install Azure CLI
 
-curl https://azurecliprod.blob.core.windows.net/install | bash
-
-hash -r
+curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
 # Login to Azure using the VM's user assigned managed identity
 
