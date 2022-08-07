@@ -20,7 +20,7 @@ sudo timedatectl set-timezone $time_zone
 
 # Set up swap file and enable
 
-swap_file_size=$(grep MemTotal /proc/meminfo | awk '{print $2}')
+swap_file_size=$(grep MemTotal /proc/meminfo | awk '{print $2}')K
 
 sudo fallocate -l $swap_file_size /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile
 
