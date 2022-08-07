@@ -44,7 +44,8 @@ az login --identity -u $managed_identity_id
 echo "export managed_identity_id=$managed_identity_id
 export ssl_cert_name=$ssl_cert_name
 export keyvault_name=$keyvault_name
-export managed_identity_clientid=$managed_identity_clientid" | sudo tee -a /etc/profile
+export managed_identity_clientid=$managed_identity_clientid
+export dns_rg_id=$dns_rg_id" | sudo tee -a /etc/profile
 
 # Edit .bashrc for azureuser so that it logs in to the managed identity any time the user is logged in
 
@@ -72,17 +73,17 @@ echo "colorscheme desert" | sudo tee -a /etc/vim/vimrc
 
 # Generate Certificate Request through Keyvault
 
-# az keyvault certificate create --vault-name $keyvault_name --name $ssl_cert_name --policy '{"x509CertificateProperties": {"subject":"CN='*.$FQDN'"},"issuerParameters": {"name": "Unknown"}}'
+az keyvault certificate create --vault-name $keyvault_name --name $ssl_cert_name --policy '{"x509CertificateProperties": {"subject":"CN='*.$FQDN'"},"issuerParameters": {"name": "Unknown"}}'
 
 # Retrieve CSR file that needs to be sent to certificate authority
 
-# az keyvault certificate pending show --vault-name $keyvault_name --name $ssl_cert_name --query csr -o tsv | sudo tee ./cert.csr
+az keyvault certificate pending show --vault-name $keyvault_name --name $ssl_cert_name --query csr -o tsv | sudo tee ./cert.csr
 
 # Modify CSR File for Letsencrypt
 
-# sed -i '1 s/^/-----BEGIN CERTIFICATE REQUEST-----\n/' ./cert.csr
+sed -i '1 s/^/-----BEGIN CERTIFICATE REQUEST-----\n/' ./cert.csr
 
-# echo "-----END CERTIFICATE REQUEST-----" | sudo tee -a ./cert.csr
+echo "-----END CERTIFICATE REQUEST-----" | sudo tee -a ./cert.csr
 
 # Install certbot and pip, use pip to install certbot Azure DNS plugin
 
@@ -93,14 +94,11 @@ sudo apt-get install certbot pip -y && sudo pip install certbot certbot-dns-azur
 echo "dns_azure_msi_client_id = $managed_identity_clientid
 dns_azure_zone = $FQDN:$dns_rg_id" | sudo tee ./azuredns.ini
 
-
-# sudo certbot certonly --authenticator dns-azure --dns-azure-config ./azuredns.ini --csr ./cert.csr --preferred-challenges dns -n --agree-tos -m $letsencrypt_email -d *.$FQDN
-
-# sudo certbot certonly --standalone --agree-tos -n -m $letsencrypt_email --csr ./cert.csr -d $FQDN
+sudo certbot certonly --authenticator dns-azure --dns-azure-config ./azuredns.ini --csr ./cert.csr --preferred-challenges dns -n --agree-tos -m $letsencrypt_email -d *.$FQDN
 
 # Upload full certificate to keyvault
 
-# az keyvault certificate pending merge --vault-name $keyvault_name --name $ssl_cert_name --file ./0001_chain.pem
+az keyvault certificate pending merge --vault-name $keyvault_name --name $ssl_cert_name --file ./0001_chain.pem
 
 # To delete keys in Keyvault
 # az keyvault certificate delete --vault-name $keyvault_name --name $ssl_cert_name

@@ -29,7 +29,7 @@ $rgName = "rg-$projectName"
 
 # VM Creation Variables
 $vmName = "TA1-SV99-Letsencrypt"
-$sshkeyRgName = "rg-keyvault"  ## Name of the resource group that you store your SSH keys in
+$sshkeyRgName = "rg-keyvault"  ## Name of the resource group in which you store your SSH login public keys
 $sshkeyName = "vmkey"          ## Name of the public SSH key you want to use for the VM
 $managedidentityResourceGroup = "rg-usermanagedidentities"
 $managedidentityName = "letsencrypt"
