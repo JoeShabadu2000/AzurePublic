@@ -8,8 +8,8 @@ time_zone=$2
 swap_file_size=$3
 keyvault_name=$4
 ssl_cert_name=$5
-managed_identity_clientid=$6
-dns_rg_id=$7
+# managed_identity_clientid=$6
+dns_rg_id=$6
 
 #######General#############
 
