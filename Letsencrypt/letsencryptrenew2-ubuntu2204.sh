@@ -7,9 +7,6 @@ managed_identity_id=$1
 time_zone=$2
 swap_file_size=$3
 keyvault_name=$4
-ssl_cert_name=$5
-managed_identity_clientid=$6
-dns_rg_id=$7
 
 #######General#############
 
@@ -51,6 +48,4 @@ echo "az login --identity -u $managed_identity_id" | sudo tee -a /home/azureuser
 
 FQDN=$(az keyvault secret show --name FQDN --vault-name $keyvault_name --query "value" --output tsv)
 
-letsencrypt_email=$(az keyvault secret show --name letsencrypt-email --vault-name $keyvault_name --query "value" --output tsv)
-
-echo "$FQDN" | sudo tee /user/azureuser/test.txt
+echo "$FQDN" | sudo tee /home/azureuser/test.txt
