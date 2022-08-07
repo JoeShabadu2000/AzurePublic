@@ -33,9 +33,7 @@ sudo sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'l'"'"';/
 
 # Install Azure CLI
 
-curl https://azurecliprod.blob.core.windows.net/install | bash
-
-hash -r
+curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
 # Login to Azure using the VM's user assigned managed identity
 
@@ -43,11 +41,7 @@ az login --identity -u $managed_identity_id
 
 # Write managed identity id & ssl cert name to the system profile so it becomes an available variable for future logins for any user
 
-echo "export managed_identity_id=$managed_identity_id
-export ssl_cert_name=$ssl_cert_name
-export keyvault_name=$keyvault_name
-export managed_identity_clientid=$managed_identity_clientid
-export dns_rg_id=$dns_rg_id" | sudo tee -a /etc/profile
+echo "export managed_identity_id=$managed_identity_id" | sudo tee -a /etc/profile
 
 # Edit .bashrc for azureuser so that it logs in to the managed identity any time the user is logged in
 
