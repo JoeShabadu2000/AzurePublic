@@ -150,7 +150,7 @@ module vnetResource 'br/public:network/virtual-network:1.0.2' = {
 // Create Public IP
 //
 
-resource publicipResource 'Microsoft.Network/publicIPAddresses@2022-01-01' = {
+resource publicipResource 'Microsoft.Network/publicIPAddresses@2021-02-01' = {
   name: publicipName
   dependsOn: [
     vnetResource
