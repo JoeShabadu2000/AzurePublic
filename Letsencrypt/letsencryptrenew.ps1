@@ -8,12 +8,11 @@
 # - An Azure Keyvault that:
 #    - Is set for Azure RBAC access (under Settings -> Access Policies)
 #    - Has the "letsencrypt" user managed identity assigned the Key Vault Adminstrator role on the Keyvault (Access control IAM)
-#    - Has 2 secrets pre-populated in the keyvault
+#    - Has 2 Secrets pre-populated in the keyvault
 #      - letsencrypt-email
 #      - FQDN
-# - DNS records properly pointed to the FQDN you have specified
 #
-# JSON schema for certificates can be found with:
+# Azure JSON schema for certificates can be found with:
 # az keyvault certificate get-default-policy --scaffold
 
 
@@ -22,7 +21,7 @@
 #############
 
 # General Variables
-$projectName = "letsencrypt"
+$projectName = "letsencrypt2"
 $projectLocation = "eastus"
 $subscriptionName = "Microsoft Partner Network"
 $rgName = "rg-$projectName"
@@ -33,15 +32,15 @@ $sshkeyRgName = "rg-keyvault"  ## Name of the resource group in which you store 
 $sshkeyName = "vmkey"          ## Name of the public SSH key you want to use for the VM
 $managedidentityResourceGroup = "rg-usermanagedidentities"
 $managedidentityName = "letsencrypt"
-$publicIPDomainName = "letsencrypt227"  ## DNS name for public IP (will concatenate [name].[region].cloudapp.azure.com) - must be global unique
+$publicIPDomainName = "letsencrypt228"  ## DNS name for public IP (will concatenate [name].[region].cloudapp.azure.com) - must be global unique
 
 # VM Setup Script Variables (passed into Bash using Custom Script Extension)
 $vmSetupScriptURL = "https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/Letsencrypt/letsencryptrenew-ubuntu2204.sh"
 $vmTimeZone = "America/New_York"
 $vmSwapFileSize = "1G"
-$vmKeyVaultName = "keyvault-tabulaxyz"  ## Name of the keyvault that will store the SSL Cert
-$sslCertName = "sslcert-tabulaxyz"  ## Name of the SSL Cert
-$dnsRgName = "rg-tabulaitxyzdns"  ## Name of the Resource Group that contains the DNS entries
+$vmKeyVaultName = "keyvault-tabulaxyz"  ## Name of the keyvault that stores the Secrets, and also where the SSL Cert will be stored
+$sslCertName = "sslcert-tabulaxyz"  ## Name to use in Azure for the SSL Cert
+$dnsRgName = "rg-dns"  ## Name of the Resource Group that contains the DNS Zone that will be verified
 
 ##################
 # Start of Setup #

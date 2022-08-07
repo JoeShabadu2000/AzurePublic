@@ -57,9 +57,9 @@ az keyvault secret download --name $ssl_cert_name --vault-name $keyvault_name --
 
 # Split full cert PEM file into separate key and certificate files
 
-sudo openssl pkcs12 -in ./cert.pfx -clcerts -nokeys -out /etc/ssl/certs/elastic.crt -passin pass:
+sudo openssl pkcs12 -in ./cert.pfx -clcerts -nokeys -out /etc/ssl/certs/ssl.crt -passin pass:
 
-sudo openssl pkcs12 -in ./cert.pfx -noenc -nocerts -out /etc/ssl/private/elastic.key -passin pass:
+sudo openssl pkcs12 -in ./cert.pfx -noenc -nocerts -out /etc/ssl/private/ssl.key -passin pass:
 
 # Pull secrets from Azure Keyvault
 
@@ -93,8 +93,8 @@ sudo htpasswd -b -c /etc/nginx/.htpasswd $kibana_admin_username $kibana_admin_pa
 
 # echo "server {
 #     listen 443 ssl;
-#     ssl_certificate /etc/ssl/certs/elastic.crt;
-#     ssl_certificate_key /etc/ssl/private/elastic.key;
+#     ssl_certificate /etc/ssl/certs/ssl.crt;
+#     ssl_certificate_key /etc/ssl/private/ssl.key;
 #     server_name elastic.tabulait.com;
 #     access_log /var/log/nginx/nginx.vhost.access.log;
 #     error_log /var/log/nginx/nginx.vhost.error.log;
@@ -110,8 +110,8 @@ sudo htpasswd -b -c /etc/nginx/.htpasswd $kibana_admin_username $kibana_admin_pa
 
 echo "server {
     listen 443 ssl;
-    ssl_certificate /etc/ssl/certs/elastic.crt;
-    ssl_certificate_key /etc/ssl/private/elastic.key;
+    ssl_certificate /etc/ssl/certs/ssl.crt;
+    ssl_certificate_key /etc/ssl/private/ssl.key;
     server_name elastic.tabulait.com;
     access_log /var/log/nginx/nginx.vhost.access.log;
     error_log /var/log/nginx/nginx.vhost.error.log;
