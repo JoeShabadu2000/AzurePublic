@@ -110,9 +110,6 @@ param vmSetupScriptURL string
 @description('Time zone to use inside of VM')
 param vmTimeZone string
 
-@description('Size of swap file to use in VM')
-param vmSwapFileSize string
-
 @description('Name of Key Vault to use for secrets retreival')
 param vmKeyVaultName string
 
@@ -277,7 +274,7 @@ resource vmCustomScriptResource 'Microsoft.Compute/virtualMachines/extensions@20
     typeHandlerVersion: '2.1'
     autoUpgradeMinorVersion: true
     protectedSettings: {
-      commandToExecute: 'wget -O setupscript.sh ${vmSetupScriptURL} && bash setupscript.sh ${managedidentityID} ${vmTimeZone} ${vmSwapFileSize} ${vmKeyVaultName}'
+      commandToExecute: 'wget -O setupscript.sh ${vmSetupScriptURL} && bash setupscript.sh ${managedidentityID} ${vmTimeZone} ${vmKeyVaultName}'
     }
   }
 }

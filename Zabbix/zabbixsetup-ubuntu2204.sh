@@ -5,8 +5,7 @@
 
 managed_identity_id=$1
 time_zone=$2
-swap_file_size=$3
-keyvault_name=$4
+keyvault_name=$3
 mysql_root_password=
 mysql_zabbix_password=
 letsencrypt_email=
@@ -20,7 +19,9 @@ letsencrypt_domain=
 
 sudo timedatectl set-timezone $time_zone
 
-# Set up swap file and enable
+# Set swap file size to equal system memory size, and enable
+
+swap_file_size=$(grep MemTotal /proc/meminfo | awk '{print $2}')K
 
 sudo fallocate -l $swap_file_size /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile
 

@@ -60,7 +60,6 @@ $managedidentityName = "zabbix"
 # VM Setup Script Variables (passed into Bash using Custom Script Extension)
 $vmSetupScriptURL = "https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/Zabbix/zabbixsetup-ubuntu2204.sh"
 $vmTimeZone = "America/New_York"
-$vmSwapFileSize = "1G"
 $vmKeyVaultName = "keyvault-zabbix"
 
 ##################
@@ -90,5 +89,4 @@ New-AzResourceGroupDeployment `
     -vmSetupScriptURL $vmSetupScriptURL `
     -managedidentityID $managedidentityID.Id `
     -vmTimeZone $vmTimeZone `
-    -vmSwapFileSize $vmSwapFileSize `
     -vmKeyVaultName $vmKeyVaultName
