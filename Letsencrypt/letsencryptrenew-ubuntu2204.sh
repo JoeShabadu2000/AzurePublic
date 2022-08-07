@@ -93,6 +93,10 @@ echo "-----END CERTIFICATE REQUEST-----" | sudo tee -a ./cert.csr
 # echo "dns_azure_msi_client_id = $managed_identity_clientid
 # dns_azure_zone = $FQDN:$dns_rg_id" | sudo tee ./azuredns.ini
 
+# sudo chmod 600 ./azuredns.ini
+
+# Start Certbot
+
 # sudo certbot certonly --authenticator dns-azure --dns-azure-config ./azuredns.ini --csr ./cert.csr --preferred-challenges dns -n --agree-tos -m $letsencrypt_email -d *.$FQDN
 
 # Upload full certificate to keyvault
