@@ -33,7 +33,9 @@ sudo sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'l'"'"';/
 
 # Install Azure CLI
 
-curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+curl https://azurecliprod.blob.core.windows.net/install | bash
+
+hash -r
 
 # Login to Azure using the VM's user assigned managed identity
 
