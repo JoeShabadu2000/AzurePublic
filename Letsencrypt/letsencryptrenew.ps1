@@ -63,6 +63,7 @@ $dnsRgID = Get-AzResourceGroup -Name $dnsRgName
 
 # Deploy Bicep template using variables listed above
 New-AzResourceGroupDeployment `
+    -Verbose `
     -ResourceGroupName $rgName `
     -TemplateFile "./letsencryptrenew.bicep" `
     -projectName $projectName `
