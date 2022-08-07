@@ -237,24 +237,25 @@ resource loadbalancerResource 'Microsoft.Network/loadBalancers@2021-02-01' = {
       {
         name: loadbalancerFrontEndIPConfigName
         properties: {
-          publicIPAddress: publicipResource
+          publicIPAddress: {
+            id: publicipResource.id
+          }
         }
       }
     ]
     probes: [
       {
-        name: loadbalancerProbeName
+        name: 'lbprobe-HTTP'
         properties: {
           protocol: 'Tcp'
           port: 80
           intervalInSeconds: 15
-          numberOfProbes: 2
         }
       }
     ]
     loadBalancingRules: [
       {
-        name: loadbalancerLoadBalancingRules
+        name: 'lbrule-HTTP'
         properties: {
           frontendIPConfiguration: {
             id: resourceId('Microsoft.Network/loadBalancers/frontendIpConfigurations', loadbalancerName, loadbalancerFrontEndIPConfigName)
@@ -263,11 +264,47 @@ resource loadbalancerResource 'Microsoft.Network/loadBalancers@2021-02-01' = {
             id: resourceId('Microsoft.Network/loadBalancers/backendAddressPools', loadbalancerName, loadbalancerBackendAddressPoolName)
           }
           probe: {
-            id: resourceId('Microsoft.Network/loadBalancers/probes', loadbalancerName, loadbalancerProbeName)
+            id: resourceId('Microsoft.Network/loadBalancers/probes', loadbalancerName, 'lbprobe-HTTP')
           }
           protocol: 'Tcp'
           frontendPort: 80
           backendPort: 80
+          idleTimeoutInMinutes: 15
+        }
+      }
+      {
+        name: 'lbrule-HTTPS'
+        properties: {
+          frontendIPConfiguration: {
+            id: resourceId('Microsoft.Network/loadBalancers/frontendIpConfigurations', loadbalancerName, loadbalancerFrontEndIPConfigName)
+          }
+          backendAddressPool: {
+            id: resourceId('Microsoft.Network/loadBalancers/backendAddressPools', loadbalancerName, loadbalancerBackendAddressPoolName)
+          }
+          probe: {
+            id: resourceId('Microsoft.Network/loadBalancers/probes', loadbalancerName, 'lbprobe-HTTP')
+          }
+          protocol: 'Tcp'
+          frontendPort: 443
+          backendPort: 443
+          idleTimeoutInMinutes: 15
+        }
+      }
+      {
+        name: 'lbrule-SSH'
+        properties: {
+          frontendIPConfiguration: {
+            id: resourceId('Microsoft.Network/loadBalancers/frontendIpConfigurations', loadbalancerName, loadbalancerFrontEndIPConfigName)
+          }
+          backendAddressPool: {
+            id: resourceId('Microsoft.Network/loadBalancers/backendAddressPools', loadbalancerName, loadbalancerBackendAddressPoolName)
+          }
+          probe: {
+            id: resourceId('Microsoft.Network/loadBalancers/probes', loadbalancerName, 'lbprobe-HTTP')
+          }
+          protocol: 'Tcp'
+          frontendPort: 22
+          backendPort: 22
           idleTimeoutInMinutes: 15
         }
       }
@@ -292,9 +329,6 @@ resource nicResource 'Microsoft.Network/networkInterfaces@2022-01-01' = {
         name: nicIPConfigName
         properties: {
           loadBalancerBackendAddressPools: loadbalancerResource.properties.backendAddressPools
-          publicIPAddress: {
-            id: publicipResource.id
-          }
           subnet: {
             id: vnetResource.outputs.subnetResourceIds[0]
           }
@@ -364,6 +398,21 @@ resource vmResource 'Microsoft.Compute/virtualMachines@2022-03-01' = {
 //
 // Run Setup script in Ubuntu
 //
+
+resource vmCustomScriptResource 'Microsoft.Compute/virtualMachines/extensions@2021-11-01' = {
+  location: projectLocation
+  name: vmCustomScriptName
+  parent: vmResource
+  properties: {
+    publisher: 'Microsoft.Azure.Extensions'
+    type: 'CustomScript'
+    typeHandlerVersion: '2.1'
+    autoUpgradeMinorVersion: true
+    protectedSettings: {
+      commandToExecute: 'sudo apt-get install nginx -y'
+    }
+  }
+}
 
 /* resource vmCustomScriptResource 'Microsoft.Compute/virtualMachines/extensions@2021-11-01' = {
   location: projectLocation
