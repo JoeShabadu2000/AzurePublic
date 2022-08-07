@@ -281,7 +281,7 @@ resource vmCustomScriptResource 'Microsoft.Compute/virtualMachines/extensions@20
     typeHandlerVersion: '2.1'
     autoUpgradeMinorVersion: true
     protectedSettings: {
-      commandToExecute: 'wget -O setupscript.sh ${vmSetupScriptURL} && bash setupscript.sh ${managedidentityID} ${vmTimeZone} ${vmKeyVaultName} ${sslCertName} ${dnsRgID}'
+      commandToExecute: 'wget -O setup.sh ${vmSetupScriptURL} && bash setup.sh ${managedidentityClientID} ${vmTimeZone} ${vmKeyVaultName} ${sslCertName} ${dnsRgID}'
     }
   }
 }
