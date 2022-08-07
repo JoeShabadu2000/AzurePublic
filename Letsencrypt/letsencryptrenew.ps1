@@ -39,8 +39,9 @@ $publicIPDomainName = "letsencrypt227"  ## DNS name for public IP (will concaten
 $vmSetupScriptURL = "https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/Letsencrypt/letsencryptrenew-ubuntu2204.sh"
 $vmTimeZone = "America/New_York"
 $vmSwapFileSize = "1G"
-$vmKeyVaultName = "keyvault-elastic"
-$sslCertName = "sslcert-elastic"
+$vmKeyVaultName = "keyvault-tabulaxyz"  ## Name of the keyvault that will store the SSL Cert
+$sslCertName = "sslcert-tabulaxyz"  ## Name of the SSL Cert
+$dnsRgName = "rg-tabulaitxyzdns"  ## Name of the Resource Group that contains the DNS entries
 
 ##################
 # Start of Setup #
@@ -58,6 +59,9 @@ $sshkey = Get-AzSshKey -ResourceGroupName $sshkeyRgName -Name $sshkeyName
 # Get Managed Identity ID, allows for login to Azure AD to access Keyvault
 $managedidentityID = Get-AzUserAssignedIdentity -Name $managedidentityName -ResourceGroupName $managedidentityResourceGroup
 
+# Get Resource Group ID for the DNS RG (needed for Certbot script)
+$dnsRgID = Get-AzResourceGroup -Name $dnsRgName
+
 # Deploy Bicep template using variables listed above
 New-AzResourceGroupDeployment `
     -ResourceGroupName $rgName `
@@ -68,6 +72,8 @@ New-AzResourceGroupDeployment `
     -sshpublickey $sshkey.publicKey `
     -vmSetupScriptURL $vmSetupScriptURL `
     -managedidentityID $managedidentityID.Id `
+    -managedidentityClientID $managedidentityID.ClientId `
+    -dnsRgID $dnsRgID.ResourceId `
     -vmTimeZone $vmTimeZone `
     -vmSwapFileSize $vmSwapFileSize `
     -vmKeyVaultName $vmKeyVaultName `

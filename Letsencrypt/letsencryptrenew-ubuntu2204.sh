@@ -8,6 +8,8 @@ time_zone=$2
 swap_file_size=$3
 keyvault_name=$4
 ssl_cert_name=$5
+managed_identity_clientid=$6
+dns_rg_id=$7
 
 #######General#############
 
@@ -41,7 +43,8 @@ az login --identity -u $managed_identity_id
 
 echo "export managed_identity_id=$managed_identity_id
 export ssl_cert_name=$ssl_cert_name
-export keyvault_name=$keyvault_name" | sudo tee -a /etc/profile
+export keyvault_name=$keyvault_name
+export managed_identity_clientid=$managed_identity_clientid" | sudo tee -a /etc/profile
 
 # Edit .bashrc for azureuser so that it logs in to the managed identity any time the user is logged in
 
@@ -51,11 +54,7 @@ echo "az login --identity -u $managed_identity_id" | sudo tee -a /home/azureuser
 
 FQDN=$(az keyvault secret show --name FQDN --vault-name $keyvault_name --query "value" --output tsv)
 
-# mysql_zabbix_password=$(az keyvault secret show --name mysql-zabbix-password --vault-name $keyvault_name --query "value" | sed -e 's/^.//' -e 's/.$//')
-
 letsencrypt_email=$(az keyvault secret show --name letsencrypt-email --vault-name $keyvault_name --query "value" --output tsv)
-
-# letsencrypt_domain=$(az keyvault secret show --name letsencrypt-domain --vault-name $keyvault_name --query "value" | sed -e 's/^.//' -e 's/.$//')
 
 # Install VIM & Curl & Midnight Commander & Rsync
 
@@ -85,9 +84,17 @@ echo "colorscheme desert" | sudo tee -a /etc/vim/vimrc
 
 # echo "-----END CERTIFICATE REQUEST-----" | sudo tee -a ./cert.csr
 
-# Install and run certbot to obtain certificates
+# Install certbot and pip, use pip to install certbot Azure DNS plugin
 
-sudo apt-get install certbot -y
+sudo apt-get install certbot pip -y && sudo pip install certbot certbot-dns-azure
+
+# Create config file for Azure DNS plugin
+
+echo "dns_azure_msi_client_id = $managed_identity_clientid
+dns_azure_zone = $FQDN:$dns_rg_id" | sudo tee ./azuredns.ini
+
+
+# sudo certbot certonly --authenticator dns-azure --dns-azure-config ./azuredns.ini --csr ./cert.csr --preferred-challenges dns -n --agree-tos -m $letsencrypt_email -d *.$FQDN
 
 # sudo certbot certonly --standalone --agree-tos -n -m $letsencrypt_email --csr ./cert.csr -d $FQDN
 

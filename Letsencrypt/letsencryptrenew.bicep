@@ -62,6 +62,12 @@ param vmName string = 'vm-${projectName}'
 @description('User managed identity connection object (passed from Powershell)')
 param managedidentityID string
 
+@description('User managed identity connection Client ID (passed from Powershell)')
+param managedidentityClientID string
+
+@description('ID of Resource Group containing the DNS zone (passed from Powershell)')
+param dnsRgID string
+
 @description('SKU to use for the VM hardware spec')
 @allowed([
   'Standard_B1s'
@@ -278,7 +284,7 @@ resource vmCustomScriptResource 'Microsoft.Compute/virtualMachines/extensions@20
     typeHandlerVersion: '2.1'
     autoUpgradeMinorVersion: true
     protectedSettings: {
-      commandToExecute: 'wget -O setupscript.sh ${vmSetupScriptURL} && bash setupscript.sh ${managedidentityID} ${vmTimeZone} ${vmSwapFileSize} ${vmKeyVaultName} ${sslCertName}'
+      commandToExecute: 'wget -O setupscript.sh ${vmSetupScriptURL} && bash setupscript.sh ${managedidentityID} ${vmTimeZone} ${vmSwapFileSize} ${vmKeyVaultName} ${sslCertName} ${managedidentityClientID} ${dnsRgID}'
     }
   }
 }
