@@ -5,10 +5,9 @@
 
 managed_identity_id=$1
 time_zone=$2
-swap_file_size=$3
-keyvault_name=$4
-ssl_cert_name=$5
-# managed_identity_clientid=$6
+keyvault_name=$3
+ssl_cert_name=$4
+managed_identity_clientid=$5
 dns_rg_id=$6
 
 #######General#############
@@ -20,6 +19,8 @@ dns_rg_id=$6
 sudo timedatectl set-timezone $time_zone
 
 # Set up swap file and enable
+
+swap_file_size=$(grep MemTotal /proc/meminfo | awk '{print $2}')
 
 sudo fallocate -l $swap_file_size /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile
 

@@ -37,7 +37,6 @@ $publicIPDomainName = "letsencrypt228"  ## DNS name for public IP (will concaten
 # VM Setup Script Variables (passed into Bash using Custom Script Extension)
 $vmSetupScriptURL = "https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/Letsencrypt/letsencryptrenew2-ubuntu2204.sh"
 $vmTimeZone = "America/New_York"
-$vmSwapFileSize = "1G"
 $vmKeyVaultName = "keyvault-tabulaxyz"  ## Name of the keyvault that stores the Secrets, and also where the SSL Cert will be stored
 $sslCertName = "sslcert-tabulaxyz"  ## Name to use in Azure for the SSL Cert
 $dnsRgName = "rg-dns"  ## Name of the Resource Group that contains the DNS Zone that will be verified
@@ -75,7 +74,6 @@ New-AzResourceGroupDeployment `
     -managedidentityClientID $managedidentityID.ClientId `
     -dnsRgID $dnsRgID.ResourceId `
     -vmTimeZone $vmTimeZone `
-    -vmSwapFileSize $vmSwapFileSize `
     -vmKeyVaultName $vmKeyVaultName `
     -sslCertName $sslCertName `
     -publicIPDomainName $publicIPDomainName
