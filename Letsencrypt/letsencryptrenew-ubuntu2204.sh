@@ -72,7 +72,7 @@ echo "colorscheme desert" | sudo tee -a /etc/vim/vimrc
 
 # Generate Certificate Request through Keyvault
 
-# az keyvault certificate create --vault-name $keyvault_name --name $ssl_cert_name --policy '{"x509CertificateProperties": {"subject":"CN='$FQDN'"},"issuerParameters": {"name": "Unknown"}}'
+# az keyvault certificate create --vault-name $keyvault_name --name $ssl_cert_name --policy '{"x509CertificateProperties": {"subject":"CN='*.$FQDN'"},"issuerParameters": {"name": "Unknown"}}'
 
 # Retrieve CSR file that needs to be sent to certificate authority
 
