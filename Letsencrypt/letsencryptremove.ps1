@@ -1,5 +1,5 @@
 $subscriptionName="Microsoft Partner Network"
-$rgName="rg-letsencrypt2"
+$rgName="rg-letsencrypt"
 
 Set-AzContext $subscriptionName
-Get-AzResourceGroup -Name $rgName | Remove-AzResourceGroup -Force -Verbose
+Get-AzResourceGroup -Name $rgName | Remove-AzResourceGroup -Force -AsJob

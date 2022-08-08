@@ -52,9 +52,14 @@ echo "az login --identity -u $managed_identity_clientid" | sudo tee -a /home/azu
 
 # Pull secrets from Azure Keyvault
 
+# dns_root_zone is the name of your managed DNS zone in Azure (example.com)
+dns_root_zone=$(az keyvault secret show --name dns-root-zone --vault-name $keyvault_name --query "value" --output tsv)
+
+# FQDN is the full name of the subdomain you are requesting a cert for (www.example.com)
+# For wildcard use *.example.com
 FQDN=$(az keyvault secret show --name FQDN --vault-name $keyvault_name --query "value" --output tsv)
 
-letsencrypt_email=$(az keyvault secret show --name letsencrypt-email --vault-name $keyvault_name --query "value" --output tsv)
+# letsencrypt_email=$(az keyvault secret show --name letsencrypt-email --vault-name $keyvault_name --query "value" --output tsv)
 
 # Install VIM & Curl & Midnight Commander & Rsync
 
@@ -72,7 +77,7 @@ echo "colorscheme desert" | sudo tee -a /etc/vim/vimrc
 
 # Generate Certificate Request through Keyvault
 
-az keyvault certificate create --vault-name $keyvault_name --name $ssl_cert_name --policy '{"x509CertificateProperties": {"subject":"CN='*.$FQDN'"},"issuerParameters": {"name": "Unknown"}}'
+az keyvault certificate create --vault-name $keyvault_name --name $ssl_cert_name --policy '{"x509CertificateProperties": {"subject":"CN='$FQDN'"},"issuerParameters": {"name": "Unknown"}}'
 
 # Retrieve CSR file that needs to be sent to certificate authority
 
@@ -86,22 +91,24 @@ echo "-----END CERTIFICATE REQUEST-----" | sudo tee -a ./cert.csr
 
 # Install certbot and pip, use pip to install certbot Azure DNS plugin
 
-# sudo apt-get install certbot pip -y && sudo pip install certbot certbot-dns-azure
+sudo apt-get install certbot pip -y && sudo pip install certbot certbot-dns-azure
 
 # Create config file for Azure DNS plugin
 
-# echo "dns_azure_msi_client_id = $managed_identity_clientid
-# dns_azure_zone = $FQDN:$dns_rg_id" | sudo tee ./azuredns.ini
+echo "dns_azure_msi_client_id = $managed_identity_clientid
+dns_azure_zone = $dns_root_zone:$dns_rg_id" | sudo tee ./azuredns.ini
 
-# sudo chmod 600 ./azuredns.ini
+sudo chmod 600 ./azuredns.ini
 
 # Start Certbot
 
-# sudo certbot certonly --authenticator dns-azure --dns-azure-config ./azuredns.ini --csr ./cert.csr --preferred-challenges dns -n --agree-tos -m $letsencrypt_email -d *.$FQDN
+# sudo certbot certonly --authenticator dns-azure --dns-azure-config ./azuredns.ini --csr ./cert.csr --preferred-challenges dns -n --agree-tos -m $letsencrypt_email -d $FQDN
+
+sudo certbot certonly --authenticator dns-azure --dns-azure-config ./azuredns.ini --csr ./cert.csr --preferred-challenges dns -n --agree-tos --register-unsafely-without-email -d $FQDN
 
 # Upload full certificate to keyvault
 
-# az keyvault certificate pending merge --vault-name $keyvault_name --name $ssl_cert_name --file ./0001_chain.pem
+az keyvault certificate pending merge --vault-name $keyvault_name --name $ssl_cert_name --file ./0001_chain.pem
 
 # To delete keys in Keyvault
 # az keyvault certificate delete --vault-name $keyvault_name --name $ssl_cert_name
@@ -125,11 +132,7 @@ echo "-----END CERTIFICATE REQUEST-----" | sudo tee -a ./cert.csr
 #     access_log /var/log/nginx/nginx.vhost.access.log;
 #     error_log /var/log/nginx/nginx.vhost.error.log;
 #     location / {
-#         proxy_pass http://localhost:5601;
-#         proxy_http_version 1.1;
-#         proxy_set_header Upgrade \$http_upgrade;
-#         proxy_set_header Connection 'upgrade';
-#         proxy_set_header Host \$host;
-#         proxy_cache_bypass \$http_upgrade;
-#     }
+#        root /var/www/html;
+#        index index.html index.htm index.nginx-debian.html;
+#    }
 # }" | sudo tee -a /etc/nginx/sites-available/default
