@@ -57,9 +57,8 @@ dns_root_zone=$(az keyvault secret show --name dns-root-zone --vault-name $keyva
 # For wildcard use *.example.com
 FQDN=$(az keyvault secret show --name FQDN --vault-name $keyvault_name --query "value" --output tsv)
 
+# Name of the SSL cert in Azure
 ssl_cert_name=$(az keyvault secret show --name ssl-cert-name --vault-name $keyvault_name --query "value" --output tsv)
-
-# letsencrypt_email=$(az keyvault secret show --name letsencrypt-email --vault-name $keyvault_name --query "value" --output tsv)
 
 # Install VIM & Curl & Midnight Commander & Rsync
 
