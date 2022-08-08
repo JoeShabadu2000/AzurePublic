@@ -79,3 +79,7 @@ New-AzResourceGroupDeployment `
     -vmTimeZone $vmTimeZone `
     -vmKeyVaultName $vmKeyVaultName `
     -publicIPDomainName $publicIPDomainName
+
+# Remove Letsencrypt Resource Group
+
+Get-AzResourceGroup -Name $rgName | Remove-AzResourceGroup -Force -AsJob
