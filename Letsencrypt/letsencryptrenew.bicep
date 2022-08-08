@@ -121,9 +121,6 @@ param vmTimeZone string
 @description('Name of Key Vault to use for secrets retreival')
 param vmKeyVaultName string
 
-@description('Name of the SSL cert to store/retrieve from Keyvault')
-param sslCertName string
-
 //
 // Create VNet and Subnet
 //
@@ -281,7 +278,7 @@ resource vmCustomScriptResource 'Microsoft.Compute/virtualMachines/extensions@20
     typeHandlerVersion: '2.1'
     autoUpgradeMinorVersion: true
     protectedSettings: {
-      commandToExecute: 'wget -O setup.sh ${vmSetupScriptURL} && bash setup.sh ${managedidentityClientID} ${vmTimeZone} ${vmKeyVaultName} ${sslCertName} ${dnsRgID}'
+      commandToExecute: 'wget -O setup.sh ${vmSetupScriptURL} && bash setup.sh ${managedidentityClientID} ${vmTimeZone} ${vmKeyVaultName} ${dnsRgID}'
     }
   }
 }

@@ -6,8 +6,7 @@
 managed_identity_clientid=$1
 time_zone=$2
 keyvault_name=$3
-ssl_cert_name=$4
-dns_rg_id=$5
+dns_rg_id=$4
 
 #######General#############
 
@@ -42,7 +41,6 @@ az login --identity -u $managed_identity_clientid
 # Write managed identity id & ssl cert name to the system profile so it becomes an available variable for future logins for any user
 
 echo "export managed_identity_clientid=$managed_identity_clientid
-export ssl_cert_name=$ssl_cert_name
 export keyvault_name=$keyvault_name
 export dns_rg_id=$dns_rg_id" | sudo tee -a /etc/profile
 
@@ -58,6 +56,8 @@ dns_root_zone=$(az keyvault secret show --name dns-root-zone --vault-name $keyva
 # FQDN is the full name of the subdomain you are requesting a cert for (www.example.com)
 # For wildcard use *.example.com
 FQDN=$(az keyvault secret show --name FQDN --vault-name $keyvault_name --query "value" --output tsv)
+
+ssl_cert_name=$(az keyvault secret show --name ssl-cert-name --vault-name $keyvault_name --query "value" --output tsv)
 
 # letsencrypt_email=$(az keyvault secret show --name letsencrypt-email --vault-name $keyvault_name --query "value" --output tsv)
 
