@@ -110,25 +110,32 @@ sudo certbot certonly --authenticator dns-azure --dns-azure-config ./azuredns.in
 
 az keyvault certificate pending merge --vault-name $keyvault_name --name $ssl_cert_name --file ./0001_chain.pem
 
+############################
+# Extra Commands if Needed #
+############################
+
 # To delete keys in Keyvault
 # az keyvault certificate delete --vault-name $keyvault_name --name $ssl_cert_name
 # az keyvault certificate purge --vault-name $keyvault_name --name $ssl_cert_name
 
-# Download SSL cert for HTTPS from Key Vault
 
+# To test if SSL certs are working
+
+# Download SSL cert for HTTPS from Key Vault
 # az keyvault secret download --name $ssl_cert_name --vault-name $keyvault_name --file ./cert.pfx  --encoding base64
 
 # Split full cert PEM file into separate key and certificate files
-
 # sudo openssl pkcs12 -in ./cert.pfx -clcerts -nokeys -out /etc/ssl/certs/ssl.crt -passin pass:
-
 # sudo openssl pkcs12 -in ./cert.pfx -noenc -nocerts -out /etc/ssl/private/ssl.key -passin pass:
+
+# Install Nginx & update default config & reload
+# sudo apt-get install nginx -y
 
 # echo "server {
 #     listen 443 ssl;
 #     ssl_certificate /etc/ssl/certs/ssl.crt;
 #     ssl_certificate_key /etc/ssl/private/ssl.key;
-#     server_name www.tabulait.xyz;
+#     server_name $FQDN;
 #     access_log /var/log/nginx/nginx.vhost.access.log;
 #     error_log /var/log/nginx/nginx.vhost.error.log;
 #     location / {
@@ -136,3 +143,7 @@ az keyvault certificate pending merge --vault-name $keyvault_name --name $ssl_ce
 #        index index.html index.htm index.nginx-debian.html;
 #    }
 # }" | sudo tee -a /etc/nginx/sites-available/default
+
+# sudo systemctl reload nginx
+
+# Now try accessing your site via HTTPS
