@@ -63,7 +63,7 @@ $managedidentityID = Get-AzUserAssignedIdentity -Name $managedidentityName -Reso
 New-AzResourceGroupDeployment `
     -Verbose `
     -ResourceGroupName $rgName `
-    -TemplateFile "./letsencryptrenew.bicep" `
+    -TemplateFile "./urbackup.bicep" `
     -projectName $projectName `
     -projectLocation $projectLocation `
     -vmName $vmName `
