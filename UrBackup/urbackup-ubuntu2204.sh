@@ -76,7 +76,9 @@ sudo chmod 600 /etc/smbcredentials/storageurbackup.cred
 sudo bash -c 'echo "//storageurbackup.file.core.windows.net/fileshare-urbackup /mnt/fileshare-urbackup cifs nofail,credentials=/etc/smbcredentials/storageurbackup.cred,dir_mode=0777,file_mode=0777,serverino,nosharesock,actimeo=30" >> /etc/fstab'
 sudo mount -t cifs //storageurbackup.file.core.windows.net/fileshare-urbackup /mnt/fileshare-urbackup -o credentials=/etc/smbcredentials/storageurbackup.cred,dir_mode=0777,file_mode=0777,serverino,nosharesock,actimeo=30
 
+# Install Docker
 
+curl -fsSL https://get.docker.com -o ./get-docker.sh && sudo sh ./get-docker.sh
 
 ############################
 # Extra Commands if Needed #
