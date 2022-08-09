@@ -37,11 +37,10 @@ curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
 az login --identity -u $managed_identity_clientid
 
-# Write managed identity id & ssl cert name to the system profile so it becomes an available variable for future logins for any user
+# Write variables to the system profile so they become available for future logins for any user
 
 echo "export managed_identity_clientid=$managed_identity_clientid
-export keyvault_name=$keyvault_name
-export dns_rg_id=$dns_rg_id" | sudo tee -a /etc/profile
+export keyvault_name=$keyvault_name" | sudo tee -a /etc/profile
 
 # Edit .bashrc for azureuser so that it logs in to the managed identity any time the user is logged in
 
@@ -49,7 +48,7 @@ echo "az login --identity -u $managed_identity_clientid" | sudo tee -a /home/azu
 
 # Pull secrets from Azure Keyvault
 
-# ssl_cert_name=$(az keyvault secret show --name ssl-cert-name --vault-name $keyvault_name --query "value" --output tsv)
+ssl_cert_name=$(az keyvault secret show --name ssl-cert-name --vault-name $keyvault_name --query "value" --output tsv)
 
 # Install VIM & Curl & Midnight Commander & Rsync
 
@@ -63,18 +62,18 @@ echo "colorscheme desert" | sudo tee -a /etc/vim/vimrc
 
 # Connect to Azure File Share
 
-sudo mkdir /mnt/fileshare-urbackup
-if [ ! -d "/etc/smbcredentials" ]; then
-sudo mkdir /etc/smbcredentials
-fi
-if [ ! -f "/etc/smbcredentials/storageurbackup.cred" ]; then
-    sudo bash -c 'echo "username=storageurbackup" >> /etc/smbcredentials/storageurbackup.cred'
-    sudo bash -c 'echo "password=RtCbHPS+S9mOm/BQ4RBD5MY2hzut4oagaibQ1S2GisL+g9h4QYzNVUXeoSMlXezP3JbNk6hu1HVp+AStls2YUg==" >> /etc/smbcredentials/storageurbackup.cred'
-fi
-sudo chmod 600 /etc/smbcredentials/storageurbackup.cred
+# sudo mkdir /mnt/fileshare-urbackup
+# if [ ! -d "/etc/smbcredentials" ]; then
+# sudo mkdir /etc/smbcredentials
+# fi
+# if [ ! -f "/etc/smbcredentials/storageurbackup.cred" ]; then
+#     sudo bash -c 'echo "username=storageurbackup" >> /etc/smbcredentials/storageurbackup.cred'
+#     sudo bash -c 'echo "password=RtCbHPS+S9mOm/BQ4RBD5MY2hzut4oagaibQ1S2GisL+g9h4QYzNVUXeoSMlXezP3JbNk6hu1HVp+AStls2YUg==" >> /etc/smbcredentials/storageurbackup.cred'
+# fi
+# sudo chmod 600 /etc/smbcredentials/storageurbackup.cred
 
-sudo bash -c 'echo "//storageurbackup.file.core.windows.net/fileshare-urbackup /mnt/fileshare-urbackup cifs nofail,credentials=/etc/smbcredentials/storageurbackup.cred,dir_mode=0777,file_mode=0777,serverino,nosharesock,actimeo=30" >> /etc/fstab'
-sudo mount -t cifs //storageurbackup.file.core.windows.net/fileshare-urbackup /mnt/fileshare-urbackup -o credentials=/etc/smbcredentials/storageurbackup.cred,dir_mode=0777,file_mode=0777,serverino,nosharesock,actimeo=30
+# sudo bash -c 'echo "//storageurbackup.file.core.windows.net/fileshare-urbackup /mnt/fileshare-urbackup cifs nofail,credentials=/etc/smbcredentials/storageurbackup.cred,dir_mode=0777,file_mode=0777,serverino,nosharesock,actimeo=30" >> /etc/fstab'
+# sudo mount -t cifs //storageurbackup.file.core.windows.net/fileshare-urbackup /mnt/fileshare-urbackup -o credentials=/etc/smbcredentials/storageurbackup.cred,dir_mode=0777,file_mode=0777,serverino,nosharesock,actimeo=30
 
 # Install Docker
 
