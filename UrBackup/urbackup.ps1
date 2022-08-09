@@ -5,16 +5,17 @@
 #
 # This script assumes you have:
 # - The SSH Key for console login pre-generated, with the public key stored in a separate resource group in the same subscription
-# - A "letsencrypt" user managed identity created in in a separate resource group in the same subscription
-# - An Azure DNS Zone already created that:
-#    - Has the "letsencrypt" user managed identity assigned the DNS Zone Contributor role
+# - A "urbackup" user managed identity created in in a separate resource group in the same subscription
 # - An Azure Keyvault that:
 #    - Is set for Azure RBAC access (under Settings -> Access Policies)
-#    - Has the "letsencrypt" user managed identity assigned the Key Vault Adminstrator role on the Keyvault (Access control IAM)
+#    - Has the "urbackup" user managed identity assigned the Key Vault Secrets User role on the Keyvault (Access control IAM)
 #    - Has 3 Secrets pre-populated in the keyvault
-#      - FQDN (such as www.example.com)
-#      - dns-root-zone (such as example.com)
-#      - ssl-cert-name (name of the SSL cert to use in Azure)
+#      - storage-account-rg (resource group containing the storage account that holds the file share)
+#      - storage-account-name (name of the storage account that holds the file share)
+#      - ssl-cert-name (name of the SSL cert in the Azure Keyvault)
+# - An Azure Storage Account that:
+#    - Has the "urbackup" user managed identity assigned Storage Account Key Operator and Storage File Data SMB Share Contributor roles
+#    - Has a file share named fileshare-urbackup created
 #
 # Azure JSON schema for certificates can be found with:
 # az keyvault certificate get-default-policy --scaffold
@@ -39,7 +40,7 @@ $managedidentityName = "urbackup"
 $publicIPDomainName = "urbackup227"  ## DNS name for public IP (will concatenate [name].[region].cloudapp.azure.com) - must be global unique
 
 # VM Setup Script Variables (passed into Bash using Custom Script Extension)
-$vmSetupScriptURL = "https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/Letsencrypt/urbackup-ubuntu2204.sh"
+$vmSetupScriptURL = "https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/UrBackup/urbackup-ubuntu2204.sh"
 $vmTimeZone = "America/New_York"
 $vmKeyVaultName = "keyvault-urbackup"  ## Name of the keyvault that stores the Secrets, and also where the SSL Cert will be stored
 

@@ -49,6 +49,8 @@ echo "az login --identity -u $managed_identity_clientid" | sudo tee -a /home/azu
 # Pull secrets from Azure Keyvault
 
 ssl_cert_name=$(az keyvault secret show --name ssl-cert-name --vault-name $keyvault_name --query "value" --output tsv)
+storage_account_name=$(az keyvault secret show --name storage-account-name --vault-name $keyvault_name --query "value" --output tsv)
+storage_account_rg=$(az keyvault secret show --name storage-account-rg --vault-name $keyvault_name --query "value" --output tsv)
 
 # Install VIM & Curl & Midnight Commander & Rsync
 
@@ -60,20 +62,30 @@ sudo apt-get install vim curl mc rsync -y
 
 echo "colorscheme desert" | sudo tee -a /etc/vim/vimrc
 
-# Connect to Azure File Share
+###############################
+# Connect to Azure File Share #
+###############################
 
-# sudo mkdir /mnt/fileshare-urbackup
-# if [ ! -d "/etc/smbcredentials" ]; then
-# sudo mkdir /etc/smbcredentials
-# fi
-# if [ ! -f "/etc/smbcredentials/storageurbackup.cred" ]; then
-#     sudo bash -c 'echo "username=storageurbackup" >> /etc/smbcredentials/storageurbackup.cred'
-#     sudo bash -c 'echo "password=RtCbHPS+S9mOm/BQ4RBD5MY2hzut4oagaibQ1S2GisL+g9h4QYzNVUXeoSMlXezP3JbNk6hu1HVp+AStls2YUg==" >> /etc/smbcredentials/storageurbackup.cred'
-# fi
-# sudo chmod 600 /etc/smbcredentials/storageurbackup.cred
+# Retrieve storage account key #1
 
-# sudo bash -c 'echo "//storageurbackup.file.core.windows.net/fileshare-urbackup /mnt/fileshare-urbackup cifs nofail,credentials=/etc/smbcredentials/storageurbackup.cred,dir_mode=0777,file_mode=0777,serverino,nosharesock,actimeo=30" >> /etc/fstab'
-# sudo mount -t cifs //storageurbackup.file.core.windows.net/fileshare-urbackup /mnt/fileshare-urbackup -o credentials=/etc/smbcredentials/storageurbackup.cred,dir_mode=0777,file_mode=0777,serverino,nosharesock,actimeo=30
+storage_account_key=$(az storage account keys list --account-name $storage_account_name --resource-group $storage_account_rg --output tsv | awk 'NR==1{print $4}')
+
+# Create mount directory & credentials file to log into file share
+
+sudo mkdir /mnt/fileshare-urbackup
+if [ ! -d "/etc/smbcredentials" ]; then
+sudo mkdir /etc/smbcredentials
+fi
+if [ ! -f "/etc/smbcredentials/storageurbackup.cred" ]; then
+    sudo bash -c 'echo "username='$storage_account_name'" >> /etc/smbcredentials/'$storage_account_name'.cred'
+    sudo bash -c 'echo "password='$storage_account_key'" >> /etc/smbcredentials/'$storage_account_name'.cred'
+fi
+sudo chmod 600 /etc/smbcredentials/$storage_account_name.cred
+
+# Mount file share and update fstab so that it reconnects on reboot
+
+sudo bash -c 'echo "//storageurbackup.file.core.windows.net/fileshare-urbackup /mnt/fileshare-urbackup cifs nofail,credentials=/etc/smbcredentials/'$storage_account_name'.cred,dir_mode=0777,file_mode=0777,serverino,nosharesock,actimeo=30" >> /etc/fstab'
+sudo mount -t cifs //storageurbackup.file.core.windows.net/fileshare-urbackup /mnt/fileshare-urbackup -o credentials=/etc/smbcredentials/$storage_account_name.cred,dir_mode=0777,file_mode=0777,serverino,nosharesock,actimeo=30
 
 # Install Docker
 

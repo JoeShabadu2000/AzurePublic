@@ -73,7 +73,7 @@ param managedidentityClientID string
   'Standard_B2s'
   'Standard_B2ms'
 ])
-param vmSKU string = 'Standard_B1ms'
+param vmSKU string = 'Standard_B1ls'
 
 @description('Username of the Linux administrator')
 param vmAdminUsername string = 'azureuser'
