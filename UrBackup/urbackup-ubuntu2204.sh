@@ -9,7 +9,7 @@ keyvault_name=$3
 
 #######General#############
 
-# Open the following ports in Azure: 22, 80, 443, 35622, 55413-55415
+# Open the following ports in Azure: 22, 80, 443, 55415
 
 # Set Time Zone
 
@@ -87,9 +87,17 @@ sudo chmod 600 /etc/smbcredentials/$storage_account_name.cred
 sudo bash -c 'echo "//storageurbackup.file.core.windows.net/fileshare-urbackup /mnt/fileshare-urbackup cifs nofail,credentials=/etc/smbcredentials/'$storage_account_name'.cred,dir_mode=0777,file_mode=0777,serverino,nosharesock,actimeo=30" >> /etc/fstab'
 sudo mount -t cifs //storageurbackup.file.core.windows.net/fileshare-urbackup /mnt/fileshare-urbackup -o credentials=/etc/smbcredentials/$storage_account_name.cred,dir_mode=0777,file_mode=0777,serverino,nosharesock,actimeo=30
 
+####################
+# Install UrBackup #
+####################
+
 # Install Docker
 
 curl -fsSL https://get.docker.com -o ./get-docker.sh && sudo sh ./get-docker.sh
+
+# Start UrBackup Docker Container
+
+sudo docker run -d --restart unless-stopped --name urbackup-server-1 -v /mnt/fileshare-urbackup/backups:/backups -v /mnt/fileshare-urbackup/database:/var/urbackup -p 55413-55415:55413-55415 -p 35623:35623/udp uroni/urbackup-server
 
 ############################
 # Extra Commands if Needed #

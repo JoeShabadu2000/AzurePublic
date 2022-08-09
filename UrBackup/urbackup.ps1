@@ -1,7 +1,6 @@
-# Will create an SSL cert stored in an Azure Keyvault through Let's Encrypt, using an automated DNS challenge
-# If an SSL cert with the same name already exists, this script will cause a new version to be created in Keyvault
+# Will create an instance of UrBackup in a Docker Container, with the backups destination set to an Azure File Share
 #
-# Defaults to a B1s instance with 1 CPU and 1G RAM
+# Defaults to a B1ls instance with 1 CPU and 512M RAM
 #
 # This script assumes you have:
 # - The SSH Key for console login pre-generated, with the public key stored in a separate resource group in the same subscription

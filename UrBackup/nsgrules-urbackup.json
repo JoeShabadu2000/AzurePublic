@@ -1,28 +1,28 @@
 {
     "securityRules": [
       {
-        "name": "Allow_UrBackup_35622_from_all",
+        "name": "Allow_UrBackup_55415_from_all",
         "properties": {
-          "description": "Allow inbound Urbackup 35622",
+          "description": "Allow inbound Urbackup 55415",
           "protocol": "Tcp",
           "sourceAddressPrefix": "*",
           "sourcePortRange": "*",
           "destinationAddressPrefix": "*",
-          "destinationPortRange": "35622",
+          "destinationPortRange": "55415",
           "access": "Allow",
           "priority": 200,
           "direction": "Inbound"
         }
       },
       {
-        "name": "Allow_UrBackup_55413-55415_from_all",
+        "name": "Allow_UrBackup_55414_from_all",
         "properties": {
-          "description": "Allow inbound Urbackup 55413-55415",
+          "description": "Allow inbound Urbackup 55414",
           "protocol": "Tcp",
           "sourceAddressPrefix": "*",
           "sourcePortRange": "*",
           "destinationAddressPrefix": "*",
-          "destinationPortRange": "55413-55415",
+          "destinationPortRange": "55414",
           "access": "Allow",
           "priority": 201,
           "direction": "Inbound"
