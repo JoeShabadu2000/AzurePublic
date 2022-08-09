@@ -93,9 +93,9 @@ sudo mount -t cifs //storageurbackup.file.core.windows.net/fileshare-urbackup /m
 
 # Copy UrBackup config/database files from the backup dir to a local dir
 
-# mkdir /var/urbackup/
+mkdir /var/urbackup/
 
-# sudo cp /mnt/fileshare-urbackup/backups/urbackup/* /var/urbackup/
+sudo cp /mnt/fileshare-urbackup/backups/urbackup/* /var/urbackup/
 
 # Install Docker
 
