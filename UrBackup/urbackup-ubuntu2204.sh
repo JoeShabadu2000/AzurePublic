@@ -97,7 +97,7 @@ curl -fsSL https://get.docker.com -o ./get-docker.sh && sudo sh ./get-docker.sh
 
 # Start UrBackup Docker Container
 
-sudo docker run -d --restart unless-stopped --name urbackup-server-1 -v /mnt/fileshare-urbackup/backups:/backups -v /mnt/fileshare-urbackup/database:/var/urbackup -p 55413-55415:55413-55415 -p 35623:35623/udp uroni/urbackup-server
+sudo docker run -d --restart unless-stopped --name urbackup-server-1 -v /mnt/fileshare-urbackup/backups:/backups -v /var/urbackup:/var/urbackup -p 55413-55415:55413-55415 -p 35623:35623/udp uroni/urbackup-server
 
 ############################
 # Extra Commands if Needed #
