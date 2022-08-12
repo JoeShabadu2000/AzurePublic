@@ -282,5 +282,3 @@ resource vmCustomScriptResource 'Microsoft.Compute/virtualMachines/extensions@20
     }
   }
 }
-
-// && wget -O setup.sh ${vmSetupScriptURL} && bash setup.sh ${managedidentityClientID} ${vmTimeZone} ${vmKeyVaultName}'

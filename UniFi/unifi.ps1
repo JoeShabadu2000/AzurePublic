@@ -25,7 +25,7 @@
 #############
 
 # General Variables
-$projectName = "unifi1"
+$projectName = "unifi"
 $projectLocation = "eastus"
 $subscriptionName = "Microsoft Partner Network"
 $rgName = "rg-$projectName"
@@ -36,10 +36,10 @@ $sshkeyRgName = "rg-keyvault"  ## Name of the resource group in which you store 
 $sshkeyName = "vmkey"          ## Name of the public SSH key you want to use for the VM
 $managedidentityResourceGroup = "rg-usermanagedidentities"
 $managedidentityName = "unifi"
-$publicIPDomainName = "unifi228"  ## DNS name for public IP (will concatenate [name].[region].cloudapp.azure.com) - must be global unique
+$publicIPDomainName = "unifi227"  ## DNS name for public IP (will concatenate [name].[region].cloudapp.azure.com) - must be global unique
 
 # VM Setup Script Variables (passed into Bash using Custom Script Extension)
-$vmSetupScriptURL = "https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/UniFi/unifi-ubuntu2204.sh"
+$vmSetupScriptURL = "https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/UniFi/test.sh"
 $vmTimeZone = "America/New_York"
 $vmKeyVaultName = "keyvault-unifi"  ## Name of the keyvault that stores the Secrets, and also where the SSL Cert will be stored
 
