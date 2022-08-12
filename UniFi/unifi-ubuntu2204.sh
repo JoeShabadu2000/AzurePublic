@@ -37,7 +37,7 @@ sudo apt-get install vim curl mc rsync -y
 
 # Install Azure CLI
 
-curl https://azurecliprod.blob.core.windows.net/install | bash
+# curl https://azurecliprod.blob.core.windows.net/install | bash
 
 # Login to Azure using the VM's user assigned managed identity
 
