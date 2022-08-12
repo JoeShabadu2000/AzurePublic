@@ -48,9 +48,9 @@ sudo apt-get install vim curl mc rsync -y
 
 curl -fsSL https://get.docker.com -o ./get-docker.sh && sudo sh ./get-docker.sh
 
-#######################################
-# Install Azure CLI  Docker Container #
-#######################################
+######################################
+# Install Azure CLI Docker Container #
+######################################
 
 # Make directory to store Azure CLI login credentials
 
@@ -109,42 +109,49 @@ sudo mount -t cifs //tabulaunifistorage.file.core.windows.net/fileshare-unifi /m
 # Install UniFi Docker #
 ########################
 
-sudo mkdir /home/$admin_username/unifi
-
 # Start unifi Docker Container
 
-sudo docker run --name unifi -d --restart=unless-stopped \
+sudo docker run -d --init --restart=unless-stopped \
+    --name unifi \
     -p 3478:3478/udp \
     -p 8080:8080 \
     -p 8443:8443 \
     -p 8880:8880 \
     -p 8843:8843 \
     -e TZ=$time_zone \
-    -v /home/$admin_username/unifi/ \
-    jacobalberty/unifi:v7.1.67-rc
+    -v /mnt/fileshare-unifi/unifi/ \
+    jacobalberty/unifi:v7.1.68
 
+# -v /home/$admin_username/unifi/ \
 
-
-############################
-# Extra Commands if Needed #
-############################
-
-# To delete keys in Keyvault
-# az keyvault certificate delete --vault-name $keyvault_name --name $ssl_cert_name
-# az keyvault certificate purge --vault-name $keyvault_name --name $ssl_cert_name
-
-
-# To test if SSL certs are working
+#############################
+# Install Nginx HTTPS Proxy #
+#############################
 
 # Download SSL cert for HTTPS from Key Vault
-# az keyvault secret download --name $ssl_cert_name --vault-name $keyvault_name --file ./cert.pfx  --encoding base64
+
+az keyvault secret download --name $ssl_cert_name --vault-name $keyvault_name --file ./cert.pfx  --encoding base64
 
 # Split full cert PEM file into separate key and certificate files
-# sudo openssl pkcs12 -in ./cert.pfx -clcerts -nokeys -out /etc/ssl/certs/ssl.crt -passin pass:
-# sudo openssl pkcs12 -in ./cert.pfx -noenc -nocerts -out /etc/ssl/private/ssl.key -passin pass:
+
+sudo openssl pkcs12 -in ./cert.pfx -clcerts -nokeys -out /etc/ssl/certs/ssl.crt -passin pass:
+sudo openssl pkcs12 -in ./cert.pfx -noenc -nocerts -out /etc/ssl/private/ssl.key -passin pass:
 
 # Install Nginx & update default config & reload
-# sudo apt-get install nginx -y
+
+sudo apt-get install nginx -y
+
+echo "server {
+    listen 443 ssl;
+    ssl_certificate /etc/ssl/certs/ssl.crt;
+    ssl_certificate_key /etc/ssl/private/ssl.key;
+    server_name $FQDN;
+    access_log /var/log/nginx/nginx.vhost.access.log;
+    error_log /var/log/nginx/nginx.vhost.error.log;
+    location / {
+        proxy_pass https://localhost:8443;
+    }
+}" | sudo tee -a /etc/nginx/sites-available/default
 
 # echo "server {
 #     listen 443 ssl;
@@ -154,11 +161,18 @@ sudo docker run --name unifi -d --restart=unless-stopped \
 #     access_log /var/log/nginx/nginx.vhost.access.log;
 #     error_log /var/log/nginx/nginx.vhost.error.log;
 #     location / {
-#        root /var/www/html;
-#        index index.html index.htm index.nginx-debian.html;
+#         proxy_pass https://localhost:8443;
+#         proxy_http_version 1.1;
+#         proxy_set_header Upgrade \$http_upgrade;
+#         proxy_set_header Connection 'upgrade';
+#         proxy_set_header Host \$host;
+#         proxy_cache_bypass \$http_upgrade;
 #    }
 # }" | sudo tee -a /etc/nginx/sites-available/default
 
-# sudo systemctl reload nginx
 
-# Now try accessing your site via HTTPS
+# Redirect HTTP to HTTPS
+
+sudo sed -i '25i return 301 https://$host$request_uri;' /etc/nginx/sites-available/default
+
+sudo systemctl reload nginx

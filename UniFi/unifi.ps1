@@ -31,7 +31,7 @@ $subscriptionName = "Microsoft Partner Network"
 $rgName = "rg-$projectName"
 
 # VM Creation Variables
-$vmName = "TA1-SV99-UniFi"
+$vmName = "TA1-SV14-UniFi"
 $sshkeyRgName = "rg-keyvault"  ## Name of the resource group in which you store your SSH login public keys
 $sshkeyName = "vmkey"          ## Name of the public SSH key you want to use for the VM
 $managedidentityResourceGroup = "rg-usermanagedidentities"
