@@ -37,7 +37,7 @@ sudo apt-get install vim curl mc rsync -y
 
 # Install Azure CLI
 
-curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+curl https://azurecliprod.blob.core.windows.net/install | bash
 
 # Login to Azure using the VM's user assigned managed identity
 
@@ -76,7 +76,7 @@ sudo mkdir /mnt/fileshare-unifi
 if [ ! -d "/etc/smbcredentials" ]; then
 sudo mkdir /etc/smbcredentials
 fi
-if [ ! -f "/etc/smbcredentials/storageunifi.cred" ]; then
+if [ ! -f "/etc/smbcredentials/$storageaccount_name.cred" ]; then
     sudo bash -c 'echo "username='$storageaccount_name'" >> /etc/smbcredentials/'$storageaccount_name'.cred'
     sudo bash -c 'echo "password='$storageaccount_key'" >> /etc/smbcredentials/'$storageaccount_name'.cred'
 fi
