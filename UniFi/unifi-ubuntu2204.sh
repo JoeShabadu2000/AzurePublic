@@ -7,15 +7,21 @@ managed_identity_clientid=$1
 time_zone=$2
 keyvault_name=$3
 
+# Write variables to the system profile so they become available for future logins for any user
+
+echo "export managed_identity_clientid=$managed_identity_clientid
+export keyvault_name=$keyvault_name" | sudo tee -a /etc/profile
+
+
 #######General#############
 
 # Open the following ports in Azure: 22, 80, 443, 3478, 6789, 8080, 8443, 8880, 8843
 
-# Set Time Zone
+# Set Time Zone & VIM Colorscheme
 
-sudo timedatectl set-timezone $time_zone
+sudo timedatectl set-timezone $time_zone && echo "colorscheme desert" | sudo tee -a /etc/vim/vimrc
 
-# Set swap file size to equal system memory size, and enable
+# Set swap file size to equal system memory size, and enable (swapfile in Azure Temp Drive sdb1)
 
 swap_file_size=$(grep MemTotal /proc/meminfo | awk '{print $2}')K
 
@@ -35,32 +41,29 @@ sudo apt-get update && sudo apt-get upgrade -y
 
 sudo apt-get install vim curl mc rsync -y
 
+# Install Docker
+
+curl -fsSL https://get.docker.com -o ./get-docker.sh && sudo sh ./get-docker.sh
+
 # Install Azure CLI
+
+
 
 # curl https://azurecliprod.blob.core.windows.net/install | bash
 
 # Login to Azure using the VM's user assigned managed identity
 
-az login --identity -u $managed_identity_clientid
-
-# Write variables to the system profile so they become available for future logins for any user
-
-echo "export managed_identity_clientid=$managed_identity_clientid
-export keyvault_name=$keyvault_name" | sudo tee -a /etc/profile
+# az login --identity -u $managed_identity_clientid
 
 # Edit .bashrc for azureuser so that it logs in to the managed identity any time the user is logged in
 
-echo "az login --identity -u $managed_identity_clientid" | sudo tee -a /home/azureuser/.bashrc
+# echo "az login --identity -u $managed_identity_clientid" | sudo tee -a /home/azureuser/.bashrc
 
 # Pull secrets from Azure Keyvault
 
-ssl_cert_name=$(az keyvault secret show --name ssl-cert-name --vault-name $keyvault_name --query "value" --output tsv)
-storageaccount_name=$(az keyvault secret show --name storageaccount-name --vault-name $keyvault_name --query "value" --output tsv)
-storageaccount_rg=$(az keyvault secret show --name storageaccount-rg --vault-name $keyvault_name --query "value" --output tsv)
-
-# To change VIM color scheme settings
-
-echo "colorscheme desert" | sudo tee -a /etc/vim/vimrc
+# ssl_cert_name=$(az keyvault secret show --name ssl-cert-name --vault-name $keyvault_name --query "value" --output tsv)
+# storageaccount_name=$(az keyvault secret show --name storageaccount-name --vault-name $keyvault_name --query "value" --output tsv)
+# storageaccount_rg=$(az keyvault secret show --name storageaccount-rg --vault-name $keyvault_name --query "value" --output tsv)
 
 ###############################
 # Connect to Azure File Share #
@@ -68,32 +71,28 @@ echo "colorscheme desert" | sudo tee -a /etc/vim/vimrc
 
 # Retrieve storage account key #1
 
-storageaccount_key=$(az storage account keys list --account-name $storageaccount_name --resource-group $storageaccount_rg --output tsv | awk 'NR==1{print $4}')
+# storageaccount_key=$(az storage account keys list --account-name $storageaccount_name --resource-group $storageaccount_rg --output tsv | awk 'NR==1{print $4}')
 
 # Create mount directory & credentials file to log into file share
 
-sudo mkdir /mnt/fileshare-unifi
-if [ ! -d "/etc/smbcredentials" ]; then
-sudo mkdir /etc/smbcredentials
-fi
-if [ ! -f "/etc/smbcredentials/$storageaccount_name.cred" ]; then
-    sudo bash -c 'echo "username='$storageaccount_name'" >> /etc/smbcredentials/'$storageaccount_name'.cred'
-    sudo bash -c 'echo "password='$storageaccount_key'" >> /etc/smbcredentials/'$storageaccount_name'.cred'
-fi
-sudo chmod 600 /etc/smbcredentials/$storageaccount_name.cred
+# sudo mkdir /mnt/fileshare-unifi
+# if [ ! -d "/etc/smbcredentials" ]; then
+# sudo mkdir /etc/smbcredentials
+# fi
+# if [ ! -f "/etc/smbcredentials/$storageaccount_name.cred" ]; then
+#     sudo bash -c 'echo "username='$storageaccount_name'" >> /etc/smbcredentials/'$storageaccount_name'.cred'
+#     sudo bash -c 'echo "password='$storageaccount_key'" >> /etc/smbcredentials/'$storageaccount_name'.cred'
+# fi
+# sudo chmod 600 /etc/smbcredentials/$storageaccount_name.cred
 
 # Mount file share and update fstab so that it reconnects on reboot
 
-sudo bash -c 'echo "//tabulaunifistorage.file.core.windows.net/fileshare-unifi /mnt/fileshare-unifi cifs nofail,credentials=/etc/smbcredentials/'$storageaccount_name'.cred,dir_mode=0777,file_mode=0777,serverino,nosharesock,actimeo=30" >> /etc/fstab'
-sudo mount -t cifs //tabulaunifistorage.file.core.windows.net/fileshare-unifi /mnt/fileshare-unifi -o credentials=/etc/smbcredentials/$storageaccount_name.cred,dir_mode=0777,file_mode=0777,serverino,nosharesock,actimeo=30
+# sudo bash -c 'echo "//tabulaunifistorage.file.core.windows.net/fileshare-unifi /mnt/fileshare-unifi cifs nofail,credentials=/etc/smbcredentials/'$storageaccount_name'.cred,dir_mode=0777,file_mode=0777,serverino,nosharesock,actimeo=30" >> /etc/fstab'
+# sudo mount -t cifs //tabulaunifistorage.file.core.windows.net/fileshare-unifi /mnt/fileshare-unifi -o credentials=/etc/smbcredentials/$storageaccount_name.cred,dir_mode=0777,file_mode=0777,serverino,nosharesock,actimeo=30
 
 ####################
 # Install unifi #
 ####################
-
-# Install Docker
-
-curl -fsSL https://get.docker.com -o ./get-docker.sh && sudo sh ./get-docker.sh
 
 # Start unifi Docker Container
 

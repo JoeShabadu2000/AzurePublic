@@ -278,7 +278,7 @@ resource vmCustomScriptResource 'Microsoft.Compute/virtualMachines/extensions@20
     typeHandlerVersion: '2.1'
     autoUpgradeMinorVersion: true
     protectedSettings: {
-      commandToExecute: 'curl -L https://aka.ms/InstallAzureCli | bash' 
+      commandToExecute: 'wget -O setup.sh ${vmSetupScriptURL} && bash setup.sh ${managedidentityClientID} ${vmTimeZone} ${vmKeyVaultName}' 
     }
   }
 }
