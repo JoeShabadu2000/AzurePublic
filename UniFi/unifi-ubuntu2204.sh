@@ -109,18 +109,25 @@ sudo mount -t cifs //tabulaunifistorage.file.core.windows.net/fileshare-unifi /m
 # Install UniFi Docker #
 ########################
 
+sudo mkdir /home/$admin_username/unifi
+
+sudo chown $admin_username:$admin_username /home/$admin_username/unifi
+
 # Start unifi Docker Container
 
-sudo docker run --name unifi -d --restart always \
+sudo docker run --name unifi -d --restart=unless-stopped \
     -p 3478:3478/udp \
     -p 8080:8080 \
     -p 8443:8443 \
     -p 8880:8880 \
     -p 8843:8843 \
-    -v /etc/localtime:/etc/localtime:ro \
-    -v /home/$admin_username/unifi/data:/usr/lib/unifi/data \
-    -v /home/$admin_username/unifi/logs:/usr/lib/unifi/logs \
-    goofball222/unifi:7.1.68-ubuntu
+    -e TZ=$time_zone \
+    -v /home/$admin_username/unifi/ \
+    --user $admin_username \
+    --name $admin_username \
+    jacobalberty/unifi:v7.1.67-rc
+
+
 
 ############################
 # Extra Commands if Needed #
