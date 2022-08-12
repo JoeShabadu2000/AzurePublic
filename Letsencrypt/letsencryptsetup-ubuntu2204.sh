@@ -29,9 +29,15 @@ echo "@reboot azureuser sudo fallocate -l $swap_file_size /swapfile && sudo chmo
 
 sudo sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'l'"'"';/g' /etc/needrestart/needrestart.conf
 
+# Install VIM & Curl & Midnight Commander & Rsync
+
+sudo apt-get update && sudo apt-get upgrade -y
+
+sudo apt-get install vim curl mc rsync -y
+
 # Install Azure CLI
 
-curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+curl https://azurecliprod.blob.core.windows.net/install | bash
 
 # Login to Azure using the VM's user assigned managed identity
 
@@ -56,12 +62,6 @@ FQDN=$(az keyvault secret show --name FQDN --vault-name $keyvault_name --query "
 letsencrypt_email=$(az keyvault secret show --name letsencrypt-email --vault-name $keyvault_name --query "value" | sed -e 's/^.//' -e 's/.$//')
 
 # letsencrypt_domain=$(az keyvault secret show --name letsencrypt-domain --vault-name $keyvault_name --query "value" | sed -e 's/^.//' -e 's/.$//')
-
-# Install VIM & Curl & Midnight Commander & Rsync
-
-sudo apt-get update && sudo apt-get upgrade -y
-
-sudo apt-get install vim curl mc rsync -y
 
 # To change VIM color scheme settings
 

@@ -41,7 +41,7 @@ $publicIPDomainName = "letsencrypt227"  ## DNS name for public IP (will concaten
 # VM Setup Script Variables (passed into Bash using Custom Script Extension)
 $vmSetupScriptURL = "https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/Letsencrypt/letsencryptrenew-ubuntu2204.sh"
 $vmTimeZone = "America/New_York"
-$vmKeyVaultName = "keyvault-urbackup"  ## Name of the keyvault that stores the Secrets, and also where the SSL Cert will be stored
+$vmKeyVaultName = "keyvault-unifi"  ## Name of the keyvault that stores the Secrets, and also where the SSL Cert will be stored
 $dnsRgName = "rg-dns"  ## Name of the Resource Group that contains the DNS Zone that will be verified
 
 ##################
