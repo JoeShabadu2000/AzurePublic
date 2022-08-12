@@ -111,8 +111,6 @@ sudo mount -t cifs //tabulaunifistorage.file.core.windows.net/fileshare-unifi /m
 
 sudo mkdir /home/$admin_username/unifi
 
-sudo chown $admin_username:$admin_username /home/$admin_username/unifi
-
 # Start unifi Docker Container
 
 sudo docker run --name unifi -d --restart=unless-stopped \
@@ -123,8 +121,6 @@ sudo docker run --name unifi -d --restart=unless-stopped \
     -p 8843:8843 \
     -e TZ=$time_zone \
     -v /home/$admin_username/unifi/ \
-    --user $admin_username \
-    --name $admin_username \
     jacobalberty/unifi:v7.1.67-rc
 
 
