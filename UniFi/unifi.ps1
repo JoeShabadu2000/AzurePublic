@@ -9,8 +9,8 @@
 #    - Is set for Azure RBAC access (under Settings -> Access Policies)
 #    - Has the "unifi" user managed identity assigned the Key Vault Secrets User role on the Keyvault (Access control IAM)
 #    - Has 3 Secrets pre-populated in the keyvault
-#      - storage-account-rg (resource group containing the storage account that holds the file share)
-#      - storage-account-name (name of the storage account that holds the file share)
+#      - storageaccount-rg (resource group containing the storage account that holds the file share)
+#      - storageaccount-name (name of the storage account that holds the file share)
 #      - ssl-cert-name (name of the SSL cert in the Azure Keyvault)
 # - An Azure Storage Account that:
 #    - Has the "unifi" user managed identity assigned Storage Account Key Operator and Storage File Data SMB Share Contributor roles
