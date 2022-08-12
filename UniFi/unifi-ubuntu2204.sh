@@ -111,7 +111,7 @@ sudo mount -t cifs //tabulaunifistorage.file.core.windows.net/fileshare-unifi /m
 
 # Start unifi Docker Container
 
-sudo docker run --name unifi -d --restart on-failure \
+sudo docker run --name unifi -d --restart always \
     -p 3478:3478/udp \
     -p 8080:8080 \
     -p 8443:8443 \
@@ -120,7 +120,7 @@ sudo docker run --name unifi -d --restart on-failure \
     -v /etc/localtime:/etc/localtime:ro \
     -v /home/$admin_username/unifi/data:/usr/lib/unifi/data \
     -v /home/$admin_username/unifi/logs:/usr/lib/unifi/logs \
-    goofball222/unifi
+    goofball222/unifi:7.1.68-ubuntu
 
 ############################
 # Extra Commands if Needed #
