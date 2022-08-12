@@ -1,4 +1,4 @@
-# Will create an instance of unifi in a Docker Container, with the backups destination set to an Azure File Share
+# Will create an instance of UniFi in a Docker Container, with the backups destination set to an Azure File Share
 #
 # Defaults to a B1s instance with 1 CPU and 1G RAM
 #

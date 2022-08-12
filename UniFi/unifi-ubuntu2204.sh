@@ -130,28 +130,16 @@ sudo docker run -d --init --restart=unless-stopped \
 
 # Download SSL cert for HTTPS from Key Vault
 
-az keyvault secret download --name $ssl_cert_name --vault-name $keyvault_name --file ./cert.pfx  --encoding base64
+# az keyvault secret download --name $ssl_cert_name --vault-name $keyvault_name --file ./cert.pfx  --encoding base64
 
-# Split full cert PEM file into separate key and certificate files
+# # Split full cert PEM file into separate key and certificate files
 
-sudo openssl pkcs12 -in ./cert.pfx -clcerts -nokeys -out /etc/ssl/certs/ssl.crt -passin pass:
-sudo openssl pkcs12 -in ./cert.pfx -noenc -nocerts -out /etc/ssl/private/ssl.key -passin pass:
+# sudo openssl pkcs12 -in ./cert.pfx -clcerts -nokeys -out /etc/ssl/certs/ssl.crt -passin pass:
+# sudo openssl pkcs12 -in ./cert.pfx -noenc -nocerts -out /etc/ssl/private/ssl.key -passin pass:
 
-# Install Nginx & update default config & reload
+# # Install Nginx & update default config & reload
 
-sudo apt-get install nginx -y
-
-echo "server {
-    listen 443 ssl;
-    ssl_certificate /etc/ssl/certs/ssl.crt;
-    ssl_certificate_key /etc/ssl/private/ssl.key;
-    server_name $FQDN;
-    access_log /var/log/nginx/nginx.vhost.access.log;
-    error_log /var/log/nginx/nginx.vhost.error.log;
-    location / {
-        proxy_pass https://localhost:8443;
-    }
-}" | sudo tee -a /etc/nginx/sites-available/default
+# sudo apt-get install nginx -y
 
 # echo "server {
 #     listen 443 ssl;
@@ -162,17 +150,29 @@ echo "server {
 #     error_log /var/log/nginx/nginx.vhost.error.log;
 #     location / {
 #         proxy_pass https://localhost:8443;
-#         proxy_http_version 1.1;
-#         proxy_set_header Upgrade \$http_upgrade;
-#         proxy_set_header Connection 'upgrade';
-#         proxy_set_header Host \$host;
-#         proxy_cache_bypass \$http_upgrade;
-#    }
+#     }
 # }" | sudo tee -a /etc/nginx/sites-available/default
 
+# # echo "server {
+# #     listen 443 ssl;
+# #     ssl_certificate /etc/ssl/certs/ssl.crt;
+# #     ssl_certificate_key /etc/ssl/private/ssl.key;
+# #     server_name $FQDN;
+# #     access_log /var/log/nginx/nginx.vhost.access.log;
+# #     error_log /var/log/nginx/nginx.vhost.error.log;
+# #     location / {
+# #         proxy_pass https://localhost:8443;
+# #         proxy_http_version 1.1;
+# #         proxy_set_header Upgrade \$http_upgrade;
+# #         proxy_set_header Connection 'upgrade';
+# #         proxy_set_header Host \$host;
+# #         proxy_cache_bypass \$http_upgrade;
+# #    }
+# # }" | sudo tee -a /etc/nginx/sites-available/default
 
-# Redirect HTTP to HTTPS
 
-sudo sed -i '25i return 301 https://$host$request_uri;' /etc/nginx/sites-available/default
+# # Redirect HTTP to HTTPS
 
-sudo systemctl reload nginx
+# sudo sed -i '25i return 301 https://$host$request_uri;' /etc/nginx/sites-available/default
+
+# sudo systemctl reload nginx
