@@ -1,0 +1,88 @@
+{
+    "securityRules": [
+      {
+        "name": "Allow_Unifi_3478_From_All",
+        "properties": {
+          "description": "Allow inbound Unifi 3478 UDP (STUN)",
+          "protocol": "Udp",
+          "sourceAddressPrefix": "*",
+          "sourcePortRange": "*",
+          "destinationAddressPrefix": "*",
+          "destinationPortRange": "3478",
+          "access": "Allow",
+          "priority": 200,
+          "direction": "Inbound"
+        }
+      },
+      {
+        "name": "Allow_Unifi_6789_From_All",
+        "properties": {
+          "description": "Allow inbound Unifi 6789 TCP (throughput measurement from Android/iOS app)",
+          "protocol": "Tcp",
+          "sourceAddressPrefix": "*",
+          "sourcePortRange": "*",
+          "destinationAddressPrefix": "*",
+          "destinationPortRange": "6789",
+          "access": "Allow",
+          "priority": 201,
+          "direction": "Inbound"
+        }
+      },
+      {
+        "name": "Allow_Unifi_8080_From_All",
+        "properties": {
+          "description": "Allow inbound Unifi 8080 TCP (UAP/USW/USG to inform controller)",
+          "protocol": "Tcp",
+          "sourceAddressPrefix": "*",
+          "sourcePortRange": "*",
+          "destinationAddressPrefix": "*",
+          "destinationPortRange": "8080",
+          "access": "Allow",
+          "priority": 202,
+          "direction": "Inbound"
+        }
+      },
+      {
+        "name": "Allow_Unifi_8443_From_All",
+        "properties": {
+          "description": "Allow inbound Unifi 8443 TCP (controller GUI / API)",
+          "protocol": "Tcp",
+          "sourceAddressPrefix": "*",
+          "sourcePortRange": "*",
+          "destinationAddressPrefix": "*",
+          "destinationPortRange": "8443",
+          "access": "Allow",
+          "priority": 203,
+          "direction": "Inbound"
+        }
+      },
+      {
+        "name": "Allow_Unifi_8880_From_All",
+        "properties": {
+          "description": "Allow inbound Unifi 8880 TCP (HTTP portal redirect)",
+          "protocol": "Tcp",
+          "sourceAddressPrefix": "*",
+          "sourcePortRange": "*",
+          "destinationAddressPrefix": "*",
+          "destinationPortRange": "8880",
+          "access": "Allow",
+          "priority": 204,
+          "direction": "Inbound"
+        }
+      },
+      {
+        "name": "Allow_Unifi_8843_From_All",
+        "properties": {
+          "description": "Allow inbound Unifi 8843 TCP (HTTPS portal redirect)",
+          "protocol": "Tcp",
+          "sourceAddressPrefix": "*",
+          "sourcePortRange": "*",
+          "destinationAddressPrefix": "*",
+          "destinationPortRange": "8843",
+          "access": "Allow",
+          "priority": 205,
+          "direction": "Inbound"
+        }
+      }
+    ]
+  }
