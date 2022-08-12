@@ -14,8 +14,9 @@ echo "export managed_identity_clientid=$managed_identity_clientid
 export keyvault_name=$keyvault_name
 export admin_username=$admin_username" | sudo tee -a /etc/profile
 
-
-#######General#############
+##########################
+# General Setup / PreReq #
+##########################
 
 # Open the following ports in Azure: 22, 80, 443, 3478, 6789, 8080, 8443, 8880, 8843
 
@@ -23,7 +24,7 @@ export admin_username=$admin_username" | sudo tee -a /etc/profile
 
 sudo timedatectl set-timezone $time_zone && echo "colorscheme desert" | sudo tee -a /etc/vim/vimrc
 
-# Set swap file size to equal system memory size, and enable (swapfile in Azure Temp Drive sdb1)
+# Set swap file size to equal system memory size, and enable (swapfile is on Azure Temp Drive sdb1 /mnt/)
 
 swap_file_size=$(grep MemTotal /proc/meminfo | awk '{print $2}')K
 
@@ -46,6 +47,10 @@ sudo apt-get install vim curl mc rsync -y
 # Install Docker
 
 curl -fsSL https://get.docker.com -o ./get-docker.sh && sudo sh ./get-docker.sh
+
+#######################################
+# Install Azure CLI  Docker Container #
+#######################################
 
 # Make directory to store Azure CLI login credentials
 
@@ -71,9 +76,9 @@ echo "az login --identity -u $managed_identity_clientid" | sudo tee -a /home/$ad
 
 # Pull secrets from Azure Keyvault
 
-# ssl_cert_name=$(az keyvault secret show --name ssl-cert-name --vault-name $keyvault_name --query "value" --output tsv)
-# storageaccount_name=$(az keyvault secret show --name storageaccount-name --vault-name $keyvault_name --query "value" --output tsv)
-# storageaccount_rg=$(az keyvault secret show --name storageaccount-rg --vault-name $keyvault_name --query "value" --output tsv)
+ssl_cert_name=$(az keyvault secret show --name ssl-cert-name --vault-name $keyvault_name --query "value" --output tsv)
+storageaccount_name=$(az keyvault secret show --name storageaccount-name --vault-name $keyvault_name --query "value" --output tsv)
+storageaccount_rg=$(az keyvault secret show --name storageaccount-rg --vault-name $keyvault_name --query "value" --output tsv)
 
 ###############################
 # Connect to Azure File Share #
@@ -81,32 +86,41 @@ echo "az login --identity -u $managed_identity_clientid" | sudo tee -a /home/$ad
 
 # Retrieve storage account key #1
 
-# storageaccount_key=$(az storage account keys list --account-name $storageaccount_name --resource-group $storageaccount_rg --output tsv | awk 'NR==1{print $4}')
+storageaccount_key=$(az storage account keys list --account-name $storageaccount_name --resource-group $storageaccount_rg --output tsv | awk 'NR==1{print $4}')
 
 # Create mount directory & credentials file to log into file share
 
-# sudo mkdir /mnt/fileshare-unifi
-# if [ ! -d "/etc/smbcredentials" ]; then
-# sudo mkdir /etc/smbcredentials
-# fi
-# if [ ! -f "/etc/smbcredentials/$storageaccount_name.cred" ]; then
-#     sudo bash -c 'echo "username='$storageaccount_name'" >> /etc/smbcredentials/'$storageaccount_name'.cred'
-#     sudo bash -c 'echo "password='$storageaccount_key'" >> /etc/smbcredentials/'$storageaccount_name'.cred'
-# fi
-# sudo chmod 600 /etc/smbcredentials/$storageaccount_name.cred
+sudo mkdir /mnt/fileshare-unifi
+if [ ! -d "/etc/smbcredentials" ]; then
+sudo mkdir /etc/smbcredentials
+fi
+if [ ! -f "/etc/smbcredentials/$storageaccount_name.cred" ]; then
+    sudo bash -c 'echo "username='$storageaccount_name'" >> /etc/smbcredentials/'$storageaccount_name'.cred'
+    sudo bash -c 'echo "password='$storageaccount_key'" >> /etc/smbcredentials/'$storageaccount_name'.cred'
+fi
+sudo chmod 600 /etc/smbcredentials/$storageaccount_name.cred
 
 # Mount file share and update fstab so that it reconnects on reboot
 
-# sudo bash -c 'echo "//tabulaunifistorage.file.core.windows.net/fileshare-unifi /mnt/fileshare-unifi cifs nofail,credentials=/etc/smbcredentials/'$storageaccount_name'.cred,dir_mode=0777,file_mode=0777,serverino,nosharesock,actimeo=30" >> /etc/fstab'
-# sudo mount -t cifs //tabulaunifistorage.file.core.windows.net/fileshare-unifi /mnt/fileshare-unifi -o credentials=/etc/smbcredentials/$storageaccount_name.cred,dir_mode=0777,file_mode=0777,serverino,nosharesock,actimeo=30
+sudo bash -c 'echo "//tabulaunifistorage.file.core.windows.net/fileshare-unifi /mnt/fileshare-unifi cifs nofail,credentials=/etc/smbcredentials/'$storageaccount_name'.cred,dir_mode=0777,file_mode=0777,serverino,nosharesock,actimeo=30" >> /etc/fstab'
+sudo mount -t cifs //tabulaunifistorage.file.core.windows.net/fileshare-unifi /mnt/fileshare-unifi -o credentials=/etc/smbcredentials/$storageaccount_name.cred,dir_mode=0777,file_mode=0777,serverino,nosharesock,actimeo=30
 
-####################
-# Install unifi #
-####################
+########################
+# Install UniFi Docker #
+########################
 
 # Start unifi Docker Container
 
-# sudo docker run -d --restart unless-stopped --name unifi-server-1 -v /mnt/fileshare-unifi/backups:/backups -v /var/unifi:/var/unifi -p 55413-55415:55413-55415 -p 35623:35623/udp uroni/unifi-server
+sudo docker run --name unifi -d --restart on-failure \
+    -p 3478:3478/udp \
+    -p 8080:8080 \
+    -p 8443:8443 \
+    -p 8880:8880 \
+    -p 8843:8843 \
+    -v /etc/localtime:/etc/localtime:ro \
+    -v /home/$admin_username/unifi/data:/usr/lib/unifi/data \
+    -v /home/$admin_username/unifi/logs:/usr/lib/unifi/logs \
+    goofball222/unifi
 
 ############################
 # Extra Commands if Needed #
