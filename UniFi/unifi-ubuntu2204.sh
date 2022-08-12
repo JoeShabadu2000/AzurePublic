@@ -6,11 +6,13 @@
 managed_identity_clientid=$1
 time_zone=$2
 keyvault_name=$3
+admin_username=$4
 
 # Write variables to the system profile so they become available for future logins for any user
 
 echo "export managed_identity_clientid=$managed_identity_clientid
-export keyvault_name=$keyvault_name" | sudo tee -a /etc/profile
+export keyvault_name=$keyvault_name
+export admin_username=$admin_username" | sudo tee -a /etc/profile
 
 
 #######General#############
@@ -29,7 +31,7 @@ sudo fallocate -l $swap_file_size /mnt/swapfile && sudo chmod 600 /mnt/swapfile 
 
 # Use crontab to add the swap file to reenable at reboot by adding the following line
 
-echo "@reboot azureuser sudo fallocate -l $swap_file_size /mnt/swapfile && sudo chmod 600 /mnt/swapfile && sudo mkswap /mnt/swapfile && sudo swapon /mnt/swapfile" | sudo tee -a /etc/crontab
+echo "@reboot $admin_username sudo fallocate -l $swap_file_size /mnt/swapfile && sudo chmod 600 /mnt/swapfile && sudo mkswap /mnt/swapfile && sudo swapon /mnt/swapfile" | sudo tee -a /etc/crontab
 
 # Change Ubuntu needrestart behavior so that it does not restart daemons, so as to not freeze up the setup script
 
@@ -45,19 +47,27 @@ sudo apt-get install vim curl mc rsync -y
 
 curl -fsSL https://get.docker.com -o ./get-docker.sh && sudo sh ./get-docker.sh
 
-# Install Azure CLI
+# Make directory to store Azure CLI login credentials
 
+sudo mkdir /home/$admin_username/.azure
 
+# Create "az" alias to allow for az to be run from command line, and add alias to /etc/profile for future logins
 
-# curl https://azurecliprod.blob.core.windows.net/install | bash
+alias az='sudo docker run -v /home/'$admin_username'/.azure:/root/.azure -v /home/'$admin_username':/root mcr.microsoft.com/azure-cli:2.39.0 az '
+
+echo "alias az='sudo docker run -v /home/$admin_username/.azure:/root/.azure -v /home/$admin_username:/root mcr.microsoft.com/azure-cli:2.39.0 az '" | sudo tee -a /etc/profile
+
+# Pull Azure CLI Docker image
+
+sudo docker pull mcr.microsoft.com/azure-cli:2.39.0
 
 # Login to Azure using the VM's user assigned managed identity
 
-# az login --identity -u $managed_identity_clientid
+az login --identity -u $managed_identity_clientid
 
-# Edit .bashrc for azureuser so that it logs in to the managed identity any time the user is logged in
+# Edit .bashrc for $admin_username so that it logs in to the managed identity any time the user is logged in
 
-# echo "az login --identity -u $managed_identity_clientid" | sudo tee -a /home/azureuser/.bashrc
+echo "az login --identity -u $managed_identity_clientid" | sudo tee -a /home/$admin_username/.bashrc
 
 # Pull secrets from Azure Keyvault
 
