@@ -125,9 +125,11 @@ sudo certbot certonly --authenticator dns-azure --dns-azure-config /home/$admin_
 
 # Upload full certificate to keyvault
 
-sudo docker run -v /home/$admin_username/.azure:/root/.azure -v /home/$admin_username:/root mcr.microsoft.com/azure-cli:2.39.0 az keyvault certificate pending merge --vault-name $keyvault_name --name $ssl_cert_name --file ./0001_chain.pem
+sudo cp /var/lib/waagent/custom-script/download/0/0001_chain.pem /home/$admin_username/0001_chain.pem
 
-# sudo docker run -v /home/$admin_username/.azure:/root/.azure -v /home/$admin_username:/root mcr.microsoft.com/azure-cli:2.39.0 az keyvault certificate pending merge --vault-name $keyvault_name --name $ssl_cert_name --file /var/lib/waagent/custom-script/download/0/0001_chain.pem
+# sudo docker run -v /home/$admin_username/.azure:/root/.azure -v /home/$admin_username:/root mcr.microsoft.com/azure-cli:2.39.0 az keyvault certificate pending merge --vault-name $keyvault_name --name $ssl_cert_name --file ./0001_chain.pem
+
+sudo docker run -v /home/$admin_username/.azure:/root/.azure -v /home/$admin_username:/root mcr.microsoft.com/azure-cli:2.39.0 az keyvault certificate pending merge --vault-name $keyvault_name --name $ssl_cert_name --file /root/0001_chain.pem
 
 ############################
 # Extra Commands if Needed #
