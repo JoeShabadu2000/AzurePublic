@@ -58,7 +58,7 @@ sudo mkdir /home/$admin_username/.azure
 
 # Create "az" alias to allow for az to be run from command line, and add alias to /etc/profile for future logins
 
-alias az='sudo docker run -v /home/'$admin_username'/.azure:/root/.azure -v /home/'$admin_username':/root mcr.microsoft.com/azure-cli:2.39.0 az '
+alias az="sudo docker run -v /home/$admin_username/.azure:/root/.azure -v /home/$admin_username:/root mcr.microsoft.com/azure-cli:2.39.0 az "
 
 echo "alias az='sudo docker run -v /home/$admin_username/.azure:/root/.azure -v /home/$admin_username:/root mcr.microsoft.com/azure-cli:2.39.0 az '" | sudo tee -a /etc/profile
 
