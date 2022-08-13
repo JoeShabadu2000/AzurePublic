@@ -68,7 +68,7 @@ sudo docker pull mcr.microsoft.com/azure-cli:2.39.0
 
 # Login to Azure using the VM's user assigned managed identity
 
-az login --identity -u $managed_identity_clientid
+sudo docker run -v /home/$admin_username/.azure:/root/.azure -v /home/$admin_username:/root mcr.microsoft.com/azure-cli:2.39.0 az login --identity -u $managed_identity_clientid
 
 # Edit .bashrc for $admin_username so that it logs in to the managed identity any time the user is logged in
 
@@ -76,9 +76,15 @@ echo "az login --identity -u $managed_identity_clientid" | sudo tee -a /home/$ad
 
 # Pull secrets from Azure Keyvault
 
-ssl_cert_name=$(az keyvault secret show --name ssl-cert-name --vault-name $keyvault_name --query "value" --output tsv)
-storageaccount_name=$(az keyvault secret show --name storageaccount-name --vault-name $keyvault_name --query "value" --output tsv)
-storageaccount_rg=$(az keyvault secret show --name storageaccount-rg --vault-name $keyvault_name --query "value" --output tsv)
+ssl_cert_name=$(sudo docker run -v /home/$admin_username/.azure:/root/.azure -v /home/$admin_username:/root mcr.microsoft.com/azure-cli:2.39.0 az keyvault secret show --name ssl-cert-name --vault-name $keyvault_name --query "value" --output tsv)
+storageaccount_name=$(sudo docker run -v /home/$admin_username/.azure:/root/.azure -v /home/$admin_username:/root mcr.microsoft.com/azure-cli:2.39.0 az keyvault secret show --name storageaccount-name --vault-name $keyvault_name --query "value" --output tsv)
+storageaccount_rg=$(sudo docker run -v /home/$admin_username/.azure:/root/.azure -v /home/$admin_username:/root mcr.microsoft.com/azure-cli:2.39.0 az keyvault secret show --name storageaccount-rg --vault-name $keyvault_name --query "value" --output tsv)
+
+# Write variables to the system profile so they become available for future logins for any user
+
+echo "export ssl_cert_name=$ssl_cert_name
+export storageaccount_name=$storageaccount_name
+export storageaccount_rg=$storageaccount_rg" | sudo tee -a /etc/profile
 
 ###############################
 # Connect to Azure File Share #
@@ -86,7 +92,7 @@ storageaccount_rg=$(az keyvault secret show --name storageaccount-rg --vault-nam
 
 # Retrieve storage account key #1
 
-storageaccount_key=$(az storage account keys list --account-name $storageaccount_name --resource-group $storageaccount_rg --output tsv | awk 'NR==1{print $4}')
+storageaccount_key=$(sudo docker run -v /home/$admin_username/.azure:/root/.azure -v /home/$admin_username:/root mcr.microsoft.com/azure-cli:2.39.0 az storage account keys list --account-name $storageaccount_name --resource-group $storageaccount_rg --output tsv | awk 'NR==1{print $4}')
 
 # Create mount directory & credentials file to log into file share
 
