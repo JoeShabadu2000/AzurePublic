@@ -86,4 +86,4 @@ New-AzResourceGroupDeployment `
 
 # Remove Letsencrypt Resource Group
 
-# Get-AzResourceGroup -Name $rgName | Remove-AzResourceGroup -Force -AsJob
+Get-AzResourceGroup -Name $rgName | Remove-AzResourceGroup -Force -AsJob
