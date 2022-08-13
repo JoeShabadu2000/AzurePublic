@@ -1,7 +1,11 @@
 # Will create an SSL cert stored in an Azure Keyvault through Let's Encrypt, using an automated DNS challenge
-# If an SSL cert with the same name already exists, this script will cause a new version to be created in Keyvault
 #
-# Defaults to a B1s instance with 1 CPU and 1G RAM
+# Uses the certbot-dns-azure plugin from https://certbot-dns-azure.readthedocs.io/en/latest/index.html to link with
+# Azure DNS to complete the certbot DNS challenge
+#
+# If an SSL cert with the same name already exists, this script will create a new version in Keyvault
+#
+# Defaults to an Ubuntu 22.04 B1s instance with 1 CPU and 1G RAM
 #
 # This script assumes you have:
 # - The SSH Key for console login pre-generated, with the public key stored in a separate resource group in the same subscription
@@ -13,7 +17,7 @@
 #    - Has the "letsencrypt" user managed identity assigned the Key Vault Adminstrator role on the Keyvault (Access control IAM)
 #    - Has 3 Secrets pre-populated in the keyvault
 #      - FQDN (such as www.example.com)
-#      - dns-root-zone (such as example.com)
+#      - dns-root-zone (such as example.com, must be same as the Azure DNS Zone that the letsencrypt user managed identity has access to)
 #      - ssl-cert-name (name of the SSL cert to use in Azure)
 #
 # Azure JSON schema for certificates can be found with:
@@ -41,7 +45,7 @@ $publicIPDomainName = "letsencrypt227"  ## DNS name for public IP (will concaten
 # VM Setup Script Variables (passed into Bash using Custom Script Extension)
 $vmSetupScriptURL = "https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/Letsencrypt/letsencryptrenew-ubuntu2204.sh"
 $vmTimeZone = "America/New_York"
-$vmKeyVaultName = "keyvault-unifi"  ## Name of the keyvault that stores the Secrets, and also where the SSL Cert will be stored
+$vmKeyVaultName = "keyvault-tabulaxyz"  ## Name of the keyvault that stores the Secrets, and also where the SSL Cert will be stored
 $dnsRgName = "rg-dns"  ## Name of the Resource Group that contains the DNS Zone that will be verified
 
 ##################
@@ -82,4 +86,4 @@ New-AzResourceGroupDeployment `
 
 # Remove Letsencrypt Resource Group
 
-Get-AzResourceGroup -Name $rgName | Remove-AzResourceGroup -Force -AsJob
+# Get-AzResourceGroup -Name $rgName | Remove-AzResourceGroup -Force -AsJob

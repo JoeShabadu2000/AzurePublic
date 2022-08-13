@@ -119,7 +119,9 @@ sudo chmod 600 /home/$admin_username/azuredns.ini
 
 # Start Certbot
 
-sudo certbot certonly --authenticator dns-azure --dns-azure-config /home/$admin_username/azuredns.ini --csr /home/$admin_username/cert.csr --cert-path /home/$admin_username/ssl.pem --preferred-challenges dns -n --agree-tos --register-unsafely-without-email -d $FQDN
+#sudo certbot certonly --authenticator dns-azure --dns-azure-config /home/$admin_username/azuredns.ini --csr /home/$admin_username/cert.csr --cert-path /home/$admin_username/ssl.pem --preferred-challenges dns -n --agree-tos --register-unsafely-without-email -d $FQDN
+
+sudo certbot certonly --authenticator dns-azure --dns-azure-config /home/$admin_username/azuredns.ini --csr /home/$admin_username/cert.csr --preferred-challenges dns -n --agree-tos --register-unsafely-without-email -d $FQDN
 
 # Upload full certificate to keyvault
 
