@@ -79,12 +79,14 @@ echo "az login --identity -u $managed_identity_clientid" | sudo tee -a /home/$ad
 ssl_cert_name=$(sudo docker run -v /home/$admin_username/.azure:/root/.azure -v /home/$admin_username:/root mcr.microsoft.com/azure-cli:2.39.0 az keyvault secret show --name ssl-cert-name --vault-name $keyvault_name --query "value" --output tsv)
 storageaccount_name=$(sudo docker run -v /home/$admin_username/.azure:/root/.azure -v /home/$admin_username:/root mcr.microsoft.com/azure-cli:2.39.0 az keyvault secret show --name storageaccount-name --vault-name $keyvault_name --query "value" --output tsv)
 storageaccount_rg=$(sudo docker run -v /home/$admin_username/.azure:/root/.azure -v /home/$admin_username:/root mcr.microsoft.com/azure-cli:2.39.0 az keyvault secret show --name storageaccount-rg --vault-name $keyvault_name --query "value" --output tsv)
+FQDN=$(sudo docker run -v /home/$admin_username/.azure:/root/.azure -v /home/$admin_username:/root mcr.microsoft.com/azure-cli:2.39.0 az keyvault secret show --name FQDN --vault-name $keyvault_name --query "value" --output tsv)
 
 # Write variables to the system profile so they become available for future logins for any user
 
 echo "export ssl_cert_name=$ssl_cert_name
 export storageaccount_name=$storageaccount_name
-export storageaccount_rg=$storageaccount_rg" | sudo tee -a /etc/profile
+export storageaccount_rg=$storageaccount_rg
+export FQDN=$FQDN" | sudo tee -a /etc/profile
 
 ###############################
 # Connect to Azure File Share #
@@ -122,13 +124,9 @@ sudo docker run -d --init --restart=unless-stopped \
     -p 3478:3478/udp \
     -p 8080:8080 \
     -p 8443:8443 \
-    -p 8880:8880 \
-    -p 8843:8843 \
     -e TZ=$time_zone \
     -v /mnt/fileshare-unifi:/unifi \
     jacobalberty/unifi:v7.1.68
-
-# -v /home/$admin_username/unifi/ \
 
 #############################
 # Install Nginx HTTPS Proxy #
@@ -136,49 +134,37 @@ sudo docker run -d --init --restart=unless-stopped \
 
 # Download SSL cert for HTTPS from Key Vault
 
-# az keyvault secret download --name $ssl_cert_name --vault-name $keyvault_name --file ./cert.pfx  --encoding base64
+sudo docker run -v /home/$admin_username/.azure:/root/.azure -v /home/$admin_username:/root mcr.microsoft.com/azure-cli:2.39.0 az keyvault secret download --name $ssl_cert_name --vault-name $keyvault_name --file /root/cert.pfx  --encoding base64
 
-# # Split full cert PEM file into separate key and certificate files
+# Split full cert PEM file into separate key and certificate files
 
-# sudo openssl pkcs12 -in ./cert.pfx -clcerts -nokeys -out /etc/ssl/certs/ssl.crt -passin pass:
-# sudo openssl pkcs12 -in ./cert.pfx -noenc -nocerts -out /etc/ssl/private/ssl.key -passin pass:
+sudo openssl pkcs12 -in /home/$admin_username/cert.pfx -clcerts -nokeys -out /etc/ssl/certs/ssl.crt -passin pass:
+sudo openssl pkcs12 -in /home/$admin_username/cert.pfx -noenc -nocerts -out /etc/ssl/private/ssl.key -passin pass:
 
-# # Install Nginx & update default config & reload
+# Install Nginx & update default config & reload
 
-# sudo apt-get install nginx -y
+sudo apt-get install nginx -y
 
-# echo "server {
-#     listen 443 ssl;
-#     ssl_certificate /etc/ssl/certs/ssl.crt;
-#     ssl_certificate_key /etc/ssl/private/ssl.key;
-#     server_name $FQDN;
-#     access_log /var/log/nginx/nginx.vhost.access.log;
-#     error_log /var/log/nginx/nginx.vhost.error.log;
-#     location / {
-#         proxy_pass https://localhost:8443;
-#     }
-# }" | sudo tee -a /etc/nginx/sites-available/default
+echo "server {
+    listen 443 ssl;
+    ssl_certificate /etc/ssl/certs/ssl.crt;
+    ssl_certificate_key /etc/ssl/private/ssl.key;
+    server_name $FQDN;
+    access_log /var/log/nginx/nginx.vhost.access.log;
+    error_log /var/log/nginx/nginx.vhost.error.log;
+    location / {
+        proxy_pass_header Authorization;
+        proxy_pass https://localhost:8443;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}" | sudo tee -a /etc/nginx/sites-available/default
 
-# # echo "server {
-# #     listen 443 ssl;
-# #     ssl_certificate /etc/ssl/certs/ssl.crt;
-# #     ssl_certificate_key /etc/ssl/private/ssl.key;
-# #     server_name $FQDN;
-# #     access_log /var/log/nginx/nginx.vhost.access.log;
-# #     error_log /var/log/nginx/nginx.vhost.error.log;
-# #     location / {
-# #         proxy_pass https://localhost:8443;
-# #         proxy_http_version 1.1;
-# #         proxy_set_header Upgrade \$http_upgrade;
-# #         proxy_set_header Connection 'upgrade';
-# #         proxy_set_header Host \$host;
-# #         proxy_cache_bypass \$http_upgrade;
-# #    }
-# # }" | sudo tee -a /etc/nginx/sites-available/default
+# Redirect HTTP to HTTPS
 
+sudo sed -i '25i return 301 https://$host$request_uri;' /etc/nginx/sites-available/default
 
-# # Redirect HTTP to HTTPS
-
-# sudo sed -i '25i return 301 https://$host$request_uri;' /etc/nginx/sites-available/default
-
-# sudo systemctl reload nginx
+sudo systemctl reload nginx
