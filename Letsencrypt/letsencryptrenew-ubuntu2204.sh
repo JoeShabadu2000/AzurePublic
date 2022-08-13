@@ -119,11 +119,11 @@ sudo chmod 600 /home/$admin_username/azuredns.ini
 
 # Start Certbot
 
-sudo certbot certonly --authenticator dns-azure --dns-azure-config /home/$admin_username/azuredns.ini --csr /home/$admin_username/cert.csr --cert-path /home/$admin_username/0001_chain.pem --preferred-challenges dns -n --agree-tos --register-unsafely-without-email -d $FQDN
+sudo certbot certonly --authenticator dns-azure --dns-azure-config /home/$admin_username/azuredns.ini --csr /home/$admin_username/cert.csr --cert-path /home/$admin_username/ssl.pem --preferred-challenges dns -n --agree-tos --register-unsafely-without-email -d $FQDN
 
 # Upload full certificate to keyvault
 
-sudo docker run -v /home/$admin_username/.azure:/root/.azure -v /home/$admin_username:/root mcr.microsoft.com/azure-cli:2.39.0 az keyvault certificate pending merge --vault-name $keyvault_name --name $ssl_cert_name --file /root/0002_chain.pem
+# sudo docker run -v /home/$admin_username/.azure:/root/.azure -v /home/$admin_username:/root mcr.microsoft.com/azure-cli:2.39.0 az keyvault certificate pending merge --vault-name $keyvault_name --name $ssl_cert_name --file /root/0002_chain.pem
 
 ############################
 # Extra Commands if Needed #

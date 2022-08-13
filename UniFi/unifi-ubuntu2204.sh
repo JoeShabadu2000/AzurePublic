@@ -18,7 +18,7 @@ export admin_username=$admin_username" | sudo tee -a /etc/profile
 # General Setup / PreReq #
 ##########################
 
-# Open the following ports in Azure: 22, 80, 443, 3478, 6789, 8080, 8443, 8880, 8843
+# Open the following ports in Azure: 22, 80, 443, 3478, 8080, 8443
 
 # Set Time Zone & VIM Colorscheme
 
@@ -144,6 +144,10 @@ sudo openssl pkcs12 -in /home/$admin_username/ssl.pfx -noenc -nocerts -out /etc/
 # Remove .pfx file from local drive after cert and key files have been created
 
 sudo rm /home/$admin_username/ssl.pfx
+
+# Add line to /etc/crontab to download a new cert weekly and restart nginx (no downtime for nginx)
+
+echo "0 0 * * 0 azureuser az login --identity -u $managed_identity_clientid && az keyvault secret download --name $ssl_cert_name --vault-name $keyvault_name --file /root/ssl.pfx  --encoding base64 && sudo openssl pkcs12 -in /home/$admin_username/ssl.pfx -clcerts -nokeys -out /etc/ssl/certs/ssl.crt -passin pass: && sudo openssl pkcs12 -in /home/$admin_username/ssl.pfx -noenc -nocerts -out /etc/ssl/private/ssl.key -passin pass: && sudo rm /home/$admin_username/ssl.pfx && sudo systemctl restart nginx" | sudo tee -a /etc/crontab
 
 #############################
 # Install Nginx HTTPS Proxy #
