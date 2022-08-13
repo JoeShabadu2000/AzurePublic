@@ -125,7 +125,7 @@ sudo docker run -d --init --restart=unless-stopped \
     -p 8880:8880 \
     -p 8843:8843 \
     -e TZ=$time_zone \
-    -v /mnt/fileshare-unifi/unifi/ \
+    -v /mnt/fileshare-unifi:/unifi \
     jacobalberty/unifi:v7.1.68
 
 # -v /home/$admin_username/unifi/ \
