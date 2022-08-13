@@ -8,10 +8,12 @@
 # - An Azure Keyvault that:
 #    - Is set for Azure RBAC access (under Settings -> Access Policies)
 #    - Has the "unifi" user managed identity assigned the Key Vault Secrets User role on the Keyvault (Access control IAM)
-#    - Has 3 Secrets pre-populated in the keyvault
+#    - Has 5 Secrets pre-populated in the keyvault
 #      - storageaccount-rg (resource group containing the storage account that holds the file share)
 #      - storageaccount-name (name of the storage account that holds the file share)
 #      - ssl-cert-name (name of the SSL cert in the Azure Keyvault)
+#      - FQDN (for your domain such as www.example.com, for Nginx reverse proxy)
+#      - dns-root-zone (for your domain such as example.com, for Letsencrypt certificates)
 # - An Azure Storage Account that:
 #    - Has the "unifi" user managed identity assigned Storage Account Key Operator and Storage File Data SMB Share Contributor roles
 #    - Has a file share named fileshare-unifi created
