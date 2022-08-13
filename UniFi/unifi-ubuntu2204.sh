@@ -128,20 +128,28 @@ sudo docker run -d --init --restart=unless-stopped \
     -v /mnt/fileshare-unifi:/unifi \
     jacobalberty/unifi:v7.1.68
 
+####################################################
+# Download New or Updated SSL Cert to use in Nginx #
+####################################################
+
+# Download .pfx file containing key and cert from Key Vault
+
+sudo docker run -v /home/$admin_username/.azure:/root/.azure -v /home/$admin_username:/root mcr.microsoft.com/azure-cli:2.39.0 az keyvault secret download --name $ssl_cert_name --vault-name $keyvault_name --file /root/ssl.pfx  --encoding base64
+
+# Split .pfx file into separate key and certificate files
+
+sudo openssl pkcs12 -in /home/$admin_username/ssl.pfx -clcerts -nokeys -out /etc/ssl/certs/ssl.crt -passin pass:
+sudo openssl pkcs12 -in /home/$admin_username/ssl.pfx -noenc -nocerts -out /etc/ssl/private/ssl.key -passin pass:
+
+# Remove .pfx file from local drive after cert and key files have been created
+
+sudo rm /home/$admin_username/ssl.pfx
+
 #############################
 # Install Nginx HTTPS Proxy #
 #############################
 
-# Download SSL cert for HTTPS from Key Vault
-
-sudo docker run -v /home/$admin_username/.azure:/root/.azure -v /home/$admin_username:/root mcr.microsoft.com/azure-cli:2.39.0 az keyvault secret download --name $ssl_cert_name --vault-name $keyvault_name --file /root/cert.pfx  --encoding base64
-
-# Split full cert PEM file into separate key and certificate files
-
-sudo openssl pkcs12 -in /home/$admin_username/cert.pfx -clcerts -nokeys -out /etc/ssl/certs/ssl.crt -passin pass:
-sudo openssl pkcs12 -in /home/$admin_username/cert.pfx -noenc -nocerts -out /etc/ssl/private/ssl.key -passin pass:
-
-# Install Nginx & update default config & reload
+# Install Nginx & update default config
 
 sudo apt-get install nginx -y
 
@@ -163,7 +171,7 @@ echo "server {
     }
 }" | sudo tee -a /etc/nginx/sites-available/default
 
-# Redirect HTTP to HTTPS
+# Redirect HTTP to HTTPS & reload
 
 sudo sed -i '25i return 301 https://$host$request_uri;' /etc/nginx/sites-available/default
 
