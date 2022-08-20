@@ -92,26 +92,26 @@ export FQDN=$FQDN" | sudo tee -a /etc/profile
 # Connect to Azure File Share #
 ###############################
 
-# Retrieve storage account key #1
+# # Retrieve storage account key #1
 
-storageaccount_key=$(sudo docker run -v /home/$admin_username/.azure:/root/.azure -v /home/$admin_username:/root mcr.microsoft.com/azure-cli:2.39.0 az storage account keys list --account-name $storageaccount_name --resource-group $storageaccount_rg --output tsv | awk 'NR==1{print $4}')
+# storageaccount_key=$(sudo docker run -v /home/$admin_username/.azure:/root/.azure -v /home/$admin_username:/root mcr.microsoft.com/azure-cli:2.39.0 az storage account keys list --account-name $storageaccount_name --resource-group $storageaccount_rg --output tsv | awk 'NR==1{print $4}')
 
-# Create mount directory & credentials file to log into file share
+# # Create mount directory & credentials file to log into file share
 
-sudo mkdir /mnt/fileshare-unifi
-if [ ! -d "/etc/smbcredentials" ]; then
-sudo mkdir /etc/smbcredentials
-fi
-if [ ! -f "/etc/smbcredentials/$storageaccount_name.cred" ]; then
-    sudo bash -c 'echo "username='$storageaccount_name'" >> /etc/smbcredentials/'$storageaccount_name'.cred'
-    sudo bash -c 'echo "password='$storageaccount_key'" >> /etc/smbcredentials/'$storageaccount_name'.cred'
-fi
-sudo chmod 600 /etc/smbcredentials/$storageaccount_name.cred
+# sudo mkdir /mnt/fileshare-unifi
+# if [ ! -d "/etc/smbcredentials" ]; then
+# sudo mkdir /etc/smbcredentials
+# fi
+# if [ ! -f "/etc/smbcredentials/$storageaccount_name.cred" ]; then
+#     sudo bash -c 'echo "username='$storageaccount_name'" >> /etc/smbcredentials/'$storageaccount_name'.cred'
+#     sudo bash -c 'echo "password='$storageaccount_key'" >> /etc/smbcredentials/'$storageaccount_name'.cred'
+# fi
+# sudo chmod 600 /etc/smbcredentials/$storageaccount_name.cred
 
-# Mount file share and update fstab so that it reconnects on reboot
+# # Mount file share and update fstab so that it reconnects on reboot
 
-sudo bash -c 'echo "//tabulaunifistorage.file.core.windows.net/fileshare-unifi /mnt/fileshare-unifi cifs nofail,credentials=/etc/smbcredentials/'$storageaccount_name'.cred,dir_mode=0777,file_mode=0777,serverino,nosharesock,actimeo=30" >> /etc/fstab'
-sudo mount -t cifs //tabulaunifistorage.file.core.windows.net/fileshare-unifi /mnt/fileshare-unifi -o credentials=/etc/smbcredentials/$storageaccount_name.cred,dir_mode=0777,file_mode=0777,serverino,nosharesock,actimeo=30
+# sudo bash -c 'echo "//tabulaunifistorage.file.core.windows.net/fileshare-unifi /mnt/fileshare-unifi cifs nofail,credentials=/etc/smbcredentials/'$storageaccount_name'.cred,dir_mode=0777,file_mode=0777,serverino,nosharesock,actimeo=30" >> /etc/fstab'
+# sudo mount -t cifs //tabulaunifistorage.file.core.windows.net/fileshare-unifi /mnt/fileshare-unifi -o credentials=/etc/smbcredentials/$storageaccount_name.cred,dir_mode=0777,file_mode=0777,serverino,nosharesock,actimeo=30
 
 ########################
 # Install UniFi Docker #
@@ -119,14 +119,26 @@ sudo mount -t cifs //tabulaunifistorage.file.core.windows.net/fileshare-unifi /m
 
 # Start unifi Docker Container
 
+# sudo docker run -d --init --restart=unless-stopped \
+#     --name unifi \
+#     --user unifi \
+#     -p 3478:3478/udp \
+#     -p 8080:8080 \
+#     -p 8443:8443 \
+#     -e TZ=$time_zone \
+#     -v /home/$admin_username/unifi:/unifi \
+#     jacobalberty/unifi:v7.1.68
+
 sudo docker run -d --init --restart=unless-stopped \
     --name unifi \
     -p 3478:3478/udp \
     -p 8080:8080 \
     -p 8443:8443 \
     -e TZ=$time_zone \
-    -v /mnt/fileshare-unifi:/unifi \
-    jacobalberty/unifi:v7.1.68
+    -v /home/$admin_username/unifi/data:/usr/lib/unifi/data \
+    -v /home/$admin_username/unifi/logs:/usr/lib/unifi/logs \
+    goofball222/unifi:7.1.68-ubuntu
+
 
 ####################################################
 # Download New or Updated SSL Cert to use in Nginx #

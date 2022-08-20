@@ -102,7 +102,7 @@ param vmImageVersion string = 'latest'
   'Standard_LRS'
   'UltraSSD_LRS'
 ])
-param vmManagedDiskType string = 'Premium_LRS'
+param vmManagedDiskType string = 'Standard_LRS'
 
 @description('Name of the VM Setup Script')
 param vmCustomScriptName string = 'vmCustomScript-${projectName}'
