@@ -11,6 +11,7 @@ admin_username=$4
 # Write variables to the system profile so they become available for future logins for any user
 
 echo "export managed_identity_clientid=$managed_identity_clientid
+time_zone=$time_zone
 export keyvault_name=$keyvault_name
 export admin_username=$admin_username" | sudo tee -a /etc/profile
 
@@ -38,11 +39,9 @@ echo "@reboot $admin_username sudo fallocate -l $swap_file_size /mnt/swapfile &&
 
 sudo sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'l'"'"';/g' /etc/needrestart/needrestart.conf
 
-# Install VIM & Curl & Midnight Commander & Rsync
+# Install system updates and Midnight Commander
 
-sudo apt-get update && sudo apt-get upgrade -y
-
-sudo apt-get install vim curl mc rsync -y
+sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install mc -y
 
 # Install Docker
 
@@ -119,16 +118,6 @@ export FQDN=$FQDN" | sudo tee -a /etc/profile
 
 # Start unifi Docker Container
 
-# sudo docker run -d --init --restart=unless-stopped \
-#     --name unifi \
-#     --user unifi \
-#     -p 3478:3478/udp \
-#     -p 8080:8080 \
-#     -p 8443:8443 \
-#     -e TZ=$time_zone \
-#     -v /home/$admin_username/unifi:/unifi \
-#     jacobalberty/unifi:v7.1.68
-
 sudo docker run -d --init --restart=unless-stopped \
     --name unifi \
     -p 3478:3478/udp \
@@ -192,3 +181,11 @@ echo "server {
 sudo sed -i '25i return 301 https://$host$request_uri;' /etc/nginx/sites-available/default
 
 sudo systemctl reload nginx
+
+#################
+# Setup Backups #
+#################
+
+# Modify /etc/crontab to upload Unifi autobackup folder to Azure blob storage every night
+
+echo "0 0 * * * azureuser az storage blob upload-batch --auth-mode login --overwrite false --destination blob-unifibackup --account-name tabulaunifibackup --source /root/unifi/data/backup/autobackup" | sudo tee -a /etc/crontab
