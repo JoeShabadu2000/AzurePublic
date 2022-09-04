@@ -22,7 +22,7 @@
 #############
 
 # General Variables
-$projectName = "unifi1"
+$projectName = "unifi"
 $projectLocation = "eastus"
 $subscriptionName = "Microsoft Partner Network"
 $rgName = "rg-$projectName"
@@ -33,7 +33,7 @@ $sshkeyRgName = "rg-keyvault"  ## Name of the resource group in which you store 
 $sshkeyName = "vmkey"          ## Name of the public SSH key you want to use for the VM
 $managedidentityResourceGroup = "rg-usermanagedidentities"
 $managedidentityName = "unifi"
-$publicIPDomainName = "tabulaunifi1"  ## DNS name for public IP (will concatenate [name].[region].cloudapp.azure.com) - must be global unique
+$publicIPDomainName = "tabulaunifi"  ## DNS name for public IP (will concatenate [name].[region].cloudapp.azure.com) - must be global unique
 
 # VM Setup Script Variables (passed into Bash using Custom Script Extension)
 $vmSetupScriptURL = "https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/UniFi/unifi-ubuntu2204.sh"

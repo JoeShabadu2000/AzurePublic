@@ -153,7 +153,7 @@ sudo docker run -d --init --restart=unless-stopped \
     -e TZ=$time_zone \
     -v /home/$admin_username/unifi/data:/usr/lib/unifi/data \
     -v /home/$admin_username/unifi/logs:/usr/lib/unifi/logs \
-    goofball222/unifi:7.1.68-ubuntu
+    goofball222/unifi:7.2.92-ubuntu
 
 
 ####################################################
