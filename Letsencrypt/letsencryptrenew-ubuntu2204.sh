@@ -12,6 +12,7 @@ admin_username=$5
 # Write variables to the system profile so they become available for future logins for any user
 
 echo "export managed_identity_clientid=$managed_identity_clientid
+time_zone=$time_zone
 export keyvault_name=$keyvault_name
 export dns_rg_id=$dns_rg_id
 export admin_username=$admin_username" | sudo tee -a /etc/profile
@@ -40,11 +41,9 @@ echo "@reboot $admin_username sudo fallocate -l $swap_file_size /mnt/swapfile &&
 
 sudo sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'l'"'"';/g' /etc/needrestart/needrestart.conf
 
-# Install VIM & Curl & Midnight Commander & Rsync
+# Install system updates
 
 sudo apt-get update && sudo apt-get upgrade -y
-
-sudo apt-get install vim curl mc rsync -y
 
 # Install Docker
 
@@ -119,9 +118,10 @@ sudo chmod 600 /home/$admin_username/azuredns.ini
 
 # Start Certbot
 
-#sudo certbot certonly --authenticator dns-azure --dns-azure-config /home/$admin_username/azuredns.ini --csr /home/$admin_username/cert.csr --cert-path /home/$admin_username/ssl.pem --preferred-challenges dns -n --agree-tos --register-unsafely-without-email -d $FQDN
-
 sudo certbot certonly --authenticator dns-azure --dns-azure-config /home/$admin_username/azuredns.ini --csr /home/$admin_username/cert.csr --preferred-challenges dns -n --agree-tos --register-unsafely-without-email -d $FQDN
+
+# If using the standalone webserver for verification (such as when using example.eastus.cloudapp.azure.com where DNS challenge isn't available)
+# sudo certbot certonly --standalone --csr /home/$admin_username/cert.csr -n --agree-tos --register-unsafely-without-email -d $FQDN
 
 # Upload full certificate to keyvault
 
