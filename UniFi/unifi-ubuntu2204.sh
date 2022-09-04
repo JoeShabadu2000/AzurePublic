@@ -39,13 +39,36 @@ echo "@reboot $admin_username sudo fallocate -l $swap_file_size /mnt/swapfile &&
 
 sudo sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'l'"'"';/g' /etc/needrestart/needrestart.conf
 
-# Install system updates and Midnight Commander
+# Install system updates
 
-sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install mc -y
+sudo apt-get update && sudo apt-get upgrade -y
 
 # Install Docker
 
 curl -fsSL https://get.docker.com -o ./get-docker.sh && sudo sh ./get-docker.sh
+
+#####################
+# Install Azure CLI #
+#####################
+
+sudo apt-get install ca-certificates curl apt-transport-https lsb-release gnupg
+
+curl -sL https://packages.microsoft.com/keys/microsoft.asc |
+    gpg --dearmor |
+    sudo tee /etc/apt/trusted.gpg.d/microsoft.gpg > /dev/null
+
+AZ_REPO=$(lsb_release -cs)
+
+echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" |
+    sudo tee /etc/apt/sources.list.d/azure-cli.list
+
+sudo apt-get update
+
+sudo apt-get install azure-cli -y
+
+# Login to Azure using the VM's user assigned managed identity
+
+az login --identity -u $managed_identity_clientid
 
 ######################################
 # Install Azure CLI Docker Container #
@@ -53,21 +76,25 @@ curl -fsSL https://get.docker.com -o ./get-docker.sh && sudo sh ./get-docker.sh
 
 # Make directory to store Azure CLI login credentials
 
-sudo mkdir /home/$admin_username/.azure
+# sudo mkdir /home/$admin_username/.azure
 
 # Create "az" alias to allow for az to be run from command line, and add alias to /etc/profile for future logins
 
-alias az="sudo docker run -v /home/$admin_username/.azure:/root/.azure -v /home/$admin_username:/root mcr.microsoft.com/azure-cli:2.39.0 az "
+# alias az="sudo docker run -v /home/$admin_username/.azure:/root/.azure -v /home/$admin_username:/root mcr.microsoft.com/azure-cli:2.39.0 az "
 
-echo "alias az='sudo docker run -v /home/$admin_username/.azure:/root/.azure -v /home/$admin_username:/root mcr.microsoft.com/azure-cli:2.39.0 az '" | sudo tee -a /etc/profile
+# echo "alias az='sudo docker run -v /home/$admin_username/.azure:/root/.azure -v /home/$admin_username:/root mcr.microsoft.com/azure-cli:2.39.0 az '" | sudo tee -a /etc/profile
 
 # Pull Azure CLI Docker image
 
-sudo docker pull mcr.microsoft.com/azure-cli:2.39.0
+# sudo docker pull mcr.microsoft.com/azure-cli:2.39.0
 
 # Login to Azure using the VM's user assigned managed identity
 
-sudo docker run -v /home/$admin_username/.azure:/root/.azure -v /home/$admin_username:/root mcr.microsoft.com/azure-cli:2.39.0 az login --identity -u $managed_identity_clientid
+# sudo docker run -v /home/$admin_username/.azure:/root/.azure -v /home/$admin_username:/root mcr.microsoft.com/azure-cli:2.39.0 az login --identity -u $managed_identity_clientid
+
+######################################
+# Set System Variables for Azure CLI #
+######################################
 
 # Edit .bashrc for $admin_username so that it logs in to the managed identity any time the user is logged in
 
@@ -75,10 +102,10 @@ echo "az login --identity -u $managed_identity_clientid" | sudo tee -a /home/$ad
 
 # Pull secrets from Azure Keyvault
 
-ssl_cert_name=$(sudo docker run -v /home/$admin_username/.azure:/root/.azure -v /home/$admin_username:/root mcr.microsoft.com/azure-cli:2.39.0 az keyvault secret show --name ssl-cert-name --vault-name $keyvault_name --query "value" --output tsv)
-storageaccount_name=$(sudo docker run -v /home/$admin_username/.azure:/root/.azure -v /home/$admin_username:/root mcr.microsoft.com/azure-cli:2.39.0 az keyvault secret show --name storageaccount-name --vault-name $keyvault_name --query "value" --output tsv)
-storageaccount_rg=$(sudo docker run -v /home/$admin_username/.azure:/root/.azure -v /home/$admin_username:/root mcr.microsoft.com/azure-cli:2.39.0 az keyvault secret show --name storageaccount-rg --vault-name $keyvault_name --query "value" --output tsv)
-FQDN=$(sudo docker run -v /home/$admin_username/.azure:/root/.azure -v /home/$admin_username:/root mcr.microsoft.com/azure-cli:2.39.0 az keyvault secret show --name FQDN --vault-name $keyvault_name --query "value" --output tsv)
+ssl_cert_name=$(az keyvault secret show --name ssl-cert-name --vault-name $keyvault_name --query "value" --output tsv)
+storageaccount_name=$(az keyvault secret show --name storageaccount-name --vault-name $keyvault_name --query "value" --output tsv)
+storageaccount_rg=$(az keyvault secret show --name storageaccount-rg --vault-name $keyvault_name --query "value" --output tsv)
+FQDN=$(az keyvault secret show --name FQDN --vault-name $keyvault_name --query "value" --output tsv)
 
 # Write variables to the system profile so they become available for future logins for any user
 
@@ -135,7 +162,7 @@ sudo docker run -d --init --restart=unless-stopped \
 
 # Download .pfx file containing key and cert from Key Vault
 
-sudo docker run -v /home/$admin_username/.azure:/root/.azure -v /home/$admin_username:/root mcr.microsoft.com/azure-cli:2.39.0 az keyvault secret download --name $ssl_cert_name --vault-name $keyvault_name --file /root/ssl.pfx  --encoding base64
+az keyvault secret download --name $ssl_cert_name --vault-name $keyvault_name --file /home/$admin_username/ssl.pfx  --encoding base64
 
 # Split .pfx file into separate key and certificate files
 
@@ -146,9 +173,9 @@ sudo openssl pkcs12 -in /home/$admin_username/ssl.pfx -noenc -nocerts -out /etc/
 
 sudo rm /home/$admin_username/ssl.pfx
 
-# Add line to /etc/crontab to download a new cert weekly and restart nginx (no downtime for nginx)
+# Add line to /etc/crontab to download a new cert on 2nd day of each month and restart nginx (no downtime for nginx)
 
-echo "0 0 * * 0 azureuser az login --identity -u $managed_identity_clientid && az keyvault secret download --name $ssl_cert_name --vault-name $keyvault_name --file /root/ssl.pfx  --encoding base64 && sudo openssl pkcs12 -in /home/$admin_username/ssl.pfx -clcerts -nokeys -out /etc/ssl/certs/ssl.crt -passin pass: && sudo openssl pkcs12 -in /home/$admin_username/ssl.pfx -noenc -nocerts -out /etc/ssl/private/ssl.key -passin pass: && sudo rm /home/$admin_username/ssl.pfx && sudo systemctl restart nginx" | sudo tee -a /etc/crontab
+echo "0 0 2 * * azureuser az login --identity -u $managed_identity_clientid && az keyvault secret download --name $ssl_cert_name --vault-name $keyvault_name --file //home/$admin_username/ssl.pfx  --encoding base64 && sudo openssl pkcs12 -in /home/$admin_username/ssl.pfx -clcerts -nokeys -out /etc/ssl/certs/ssl.crt -passin pass: && sudo openssl pkcs12 -in /home/$admin_username/ssl.pfx -noenc -nocerts -out /etc/ssl/private/ssl.key -passin pass: && sudo rm /home/$admin_username/ssl.pfx && sudo systemctl restart nginx" | sudo tee -a /etc/crontab
 
 #############################
 # Install Nginx HTTPS Proxy #
