@@ -114,31 +114,6 @@ export storageaccount_name=$storageaccount_name
 export storageaccount_rg=$storageaccount_rg
 export FQDN=$FQDN" | sudo tee -a /etc/profile
 
-###############################
-# Connect to Azure File Share #
-###############################
-
-# # Retrieve storage account key #1
-
-# storageaccount_key=$(sudo docker run -v /home/$admin_username/.azure:/root/.azure -v /home/$admin_username:/root mcr.microsoft.com/azure-cli:2.39.0 az storage account keys list --account-name $storageaccount_name --resource-group $storageaccount_rg --output tsv | awk 'NR==1{print $4}')
-
-# # Create mount directory & credentials file to log into file share
-
-# sudo mkdir /mnt/fileshare-unifi
-# if [ ! -d "/etc/smbcredentials" ]; then
-# sudo mkdir /etc/smbcredentials
-# fi
-# if [ ! -f "/etc/smbcredentials/$storageaccount_name.cred" ]; then
-#     sudo bash -c 'echo "username='$storageaccount_name'" >> /etc/smbcredentials/'$storageaccount_name'.cred'
-#     sudo bash -c 'echo "password='$storageaccount_key'" >> /etc/smbcredentials/'$storageaccount_name'.cred'
-# fi
-# sudo chmod 600 /etc/smbcredentials/$storageaccount_name.cred
-
-# # Mount file share and update fstab so that it reconnects on reboot
-
-# sudo bash -c 'echo "//tabulaunifistorage.file.core.windows.net/fileshare-unifi /mnt/fileshare-unifi cifs nofail,credentials=/etc/smbcredentials/'$storageaccount_name'.cred,dir_mode=0777,file_mode=0777,serverino,nosharesock,actimeo=30" >> /etc/fstab'
-# sudo mount -t cifs //tabulaunifistorage.file.core.windows.net/fileshare-unifi /mnt/fileshare-unifi -o credentials=/etc/smbcredentials/$storageaccount_name.cred,dir_mode=0777,file_mode=0777,serverino,nosharesock,actimeo=30
-
 ########################
 # Install UniFi Docker #
 ########################
@@ -175,7 +150,7 @@ sudo rm /home/$admin_username/ssl.pfx
 
 # Add line to /etc/crontab to download a new cert on 2nd day of each month and restart nginx (no downtime for nginx)
 
-echo "0 0 2 * * azureuser az login --identity -u $managed_identity_clientid && az keyvault secret download --name $ssl_cert_name --vault-name $keyvault_name --file /home/$admin_username/ssl.pfx  --encoding base64 && sudo openssl pkcs12 -in /home/$admin_username/ssl.pfx -clcerts -nokeys -out /etc/ssl/certs/ssl.crt -passin pass: && sudo openssl pkcs12 -in /home/$admin_username/ssl.pfx -noenc -nocerts -out /etc/ssl/private/ssl.key -passin pass: && sudo rm /home/$admin_username/ssl.pfx && sudo systemctl restart nginx" | sudo tee -a /etc/crontab
+echo "0 0 2 * * azureuser (az login --identity -u $managed_identity_clientid && az keyvault secret download --name $ssl_cert_name --vault-name $keyvault_name --file /home/$admin_username/ssl.pfx  --encoding base64 && sudo openssl pkcs12 -in /home/$admin_username/ssl.pfx -clcerts -nokeys -out /etc/ssl/certs/ssl.crt -passin pass: && sudo openssl pkcs12 -in /home/$admin_username/ssl.pfx -noenc -nocerts -out /etc/ssl/private/ssl.key -passin pass: && sudo rm /home/$admin_username/ssl.pfx && sudo systemctl restart nginx) 2>&1 | logger -t azuressl" | sudo tee -a /etc/crontab
 
 #############################
 # Install Nginx HTTPS Proxy #
@@ -215,4 +190,4 @@ sudo systemctl reload nginx
 
 # Modify /etc/crontab to upload Unifi autobackup folder to Azure blob storage every night
 
-echo "0 0 * * * azureuser az storage blob upload-batch --auth-mode login --overwrite false --destination blob-unifibackup --account-name tabulaunifibackup --source /home/$admin_username/unifi/data/backup/autobackup" | sudo tee -a /etc/crontab
+echo "0 0 * * * azureuser az storage blob upload-batch --auth-mode login --overwrite false --destination blob-unifibackup --account-name tabulaunifibackup --source /home/$admin_username/unifi/data/backup/autobackup 2>&1 | logger -t azurebackup" | sudo tee -a /etc/crontab
