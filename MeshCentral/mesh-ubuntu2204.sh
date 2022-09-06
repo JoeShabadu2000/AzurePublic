@@ -1,5 +1,5 @@
 ### Run this file inside the VM after it has been provisioned in Azure
-### wget -O - https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/Elastic/unifi-ubuntu2204.sh | bash
+### wget -O - https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/MeshCentral/mesh-ubuntu2204.sh | bash
 
 #####Variables#########
 
@@ -19,7 +19,7 @@ export admin_username=$admin_username" | sudo tee -a /etc/profile
 # General Setup / PreReq #
 ##########################
 
-# Open the following ports in Azure: 22, 80, 443, 3478, 8080, 8443
+# Open the following ports in Azure: 22, 80, 443
 
 # Set Time Zone & VIM Colorscheme
 
@@ -71,28 +71,6 @@ sudo apt-get install azure-cli=2.39.0-1~jammy -y
 az login --identity -u $managed_identity_clientid
 
 ######################################
-# Install Azure CLI Docker Container #
-######################################
-
-# Make directory to store Azure CLI login credentials
-
-# sudo mkdir /home/$admin_username/.azure
-
-# Create "az" alias to allow for az to be run from command line, and add alias to /etc/profile for future logins
-
-# alias az="sudo docker run -v /home/$admin_username/.azure:/root/.azure -v /home/$admin_username:/root mcr.microsoft.com/azure-cli:2.39.0 az "
-
-# echo "alias az='sudo docker run -v /home/$admin_username/.azure:/root/.azure -v /home/$admin_username:/root mcr.microsoft.com/azure-cli:2.39.0 az '" | sudo tee -a /etc/profile
-
-# Pull Azure CLI Docker image
-
-# sudo docker pull mcr.microsoft.com/azure-cli:2.39.0
-
-# Login to Azure using the VM's user assigned managed identity
-
-# sudo docker run -v /home/$admin_username/.azure:/root/.azure -v /home/$admin_username:/root mcr.microsoft.com/azure-cli:2.39.0 az login --identity -u $managed_identity_clientid
-
-######################################
 # Set System Variables for Azure CLI #
 ######################################
 
@@ -139,23 +117,6 @@ export FQDN=$FQDN" | sudo tee -a /etc/profile
 # sudo bash -c 'echo "//tabulaunifistorage.file.core.windows.net/fileshare-unifi /mnt/fileshare-unifi cifs nofail,credentials=/etc/smbcredentials/'$storageaccount_name'.cred,dir_mode=0777,file_mode=0777,serverino,nosharesock,actimeo=30" >> /etc/fstab'
 # sudo mount -t cifs //tabulaunifistorage.file.core.windows.net/fileshare-unifi /mnt/fileshare-unifi -o credentials=/etc/smbcredentials/$storageaccount_name.cred,dir_mode=0777,file_mode=0777,serverino,nosharesock,actimeo=30
 
-########################
-# Install UniFi Docker #
-########################
-
-# Start unifi Docker Container
-
-sudo docker run -d --init --restart=unless-stopped \
-    --name unifi \
-    -p 3478:3478/udp \
-    -p 8080:8080 \
-    -p 8443:8443 \
-    -e TZ=$time_zone \
-    -v /home/$admin_username/unifi/data:/usr/lib/unifi/data \
-    -v /home/$admin_username/unifi/logs:/usr/lib/unifi/logs \
-    goofball222/unifi:7.2.92-ubuntu
-
-
 ####################################################
 # Download New or Updated SSL Cert to use in Nginx #
 ####################################################
@@ -175,7 +136,7 @@ sudo rm /home/$admin_username/ssl.pfx
 
 # Add line to /etc/crontab to download a new cert on 2nd day of each month and restart nginx (no downtime for nginx)
 
-echo "0 0 2 * * azureuser az login --identity -u $managed_identity_clientid && az keyvault secret download --name $ssl_cert_name --vault-name $keyvault_name --file /home/$admin_username/ssl.pfx  --encoding base64 && sudo openssl pkcs12 -in /home/$admin_username/ssl.pfx -clcerts -nokeys -out /etc/ssl/certs/ssl.crt -passin pass: && sudo openssl pkcs12 -in /home/$admin_username/ssl.pfx -noenc -nocerts -out /etc/ssl/private/ssl.key -passin pass: && sudo rm /home/$admin_username/ssl.pfx && sudo systemctl restart nginx" | sudo tee -a /etc/crontab
+echo "0 0 2 * * azureuser az login --identity -u $managed_identity_clientid && az keyvault secret download --name $ssl_cert_name --vault-name $keyvault_name --file //home/$admin_username/ssl.pfx  --encoding base64 && sudo openssl pkcs12 -in /home/$admin_username/ssl.pfx -clcerts -nokeys -out /etc/ssl/certs/ssl.crt -passin pass: && sudo openssl pkcs12 -in /home/$admin_username/ssl.pfx -noenc -nocerts -out /etc/ssl/private/ssl.key -passin pass: && sudo rm /home/$admin_username/ssl.pfx && sudo systemctl restart nginx" | sudo tee -a /etc/crontab
 
 #############################
 # Install Nginx HTTPS Proxy #
@@ -213,6 +174,6 @@ sudo systemctl reload nginx
 # Setup Backups #
 #################
 
-# Modify /etc/crontab to upload Unifi autobackup folder to Azure blob storage every night
+# Modify /etc/crontab to upload MeshCentral autobackup folder to Azure blob storage every night
 
-echo "0 0 * * * azureuser az storage blob upload-batch --auth-mode login --overwrite false --destination blob-unifibackup --account-name tabulaunifibackup --source /home/$admin_username/unifi/data/backup/autobackup" | sudo tee -a /etc/crontab
+# echo "0 0 * * * azureuser az storage blob upload-batch --auth-mode login --overwrite false --destination blob-unifibackup --account-name tabulaunifibackup --source /root/unifi/data/backup/autobackup" | sudo tee -a /etc/crontab
