@@ -33,6 +33,7 @@ $projectName = "letsencrypt"
 $projectLocation = "eastus"
 $subscriptionName = "Microsoft Partner Network"
 $rgName = "rg-$projectName"
+$templateFileLocation = "./letsencryptrenew.bicep"
 
 # VM Creation Variables
 $vmName = "TA1-SV99-Letsencrypt"
@@ -55,8 +56,12 @@ $dnsRgName = "rg-dns"  ## Name of the Resource Group that contains the DNS Zone 
 # Set Correct Subscription
 Set-AzContext $subscriptionName
 
+Connect-AzAccount -Identity -
+
 # Create Resource Group
 New-AzResourceGroup -Name $rgName -Location $projectLocation
+
+
 
 # Get SSH Public Key from Existing Resource Group, to use when setting up VM
 $sshkey = Get-AzSshKey -ResourceGroupName $sshkeyRgName -Name $sshkeyName
@@ -71,7 +76,7 @@ $dnsRgID = Get-AzResourceGroup -Name $dnsRgName
 New-AzResourceGroupDeployment `
     -Verbose `
     -ResourceGroupName $rgName `
-    -TemplateFile "./letsencryptrenew.bicep" `
+    -TemplateFile $templateFileLocation `
     -projectName $projectName `
     -projectLocation $projectLocation `
     -vmName $vmName `
