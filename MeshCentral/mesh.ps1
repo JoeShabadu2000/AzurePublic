@@ -1,6 +1,6 @@
 # Will create an instance of MeshCentral
 #
-# Defaults to a B1s instance with 1 CPU and 1G RAM
+# Defaults to a B1s instance with 1 CPU and 1G RAM. Using Ubuntu 20.04 since 22.04 not currently suppored by mongodb.
 #
 # This script assumes you have:
 # - The SSH Key for console login pre-generated, with the public key stored in a separate resource group in the same subscription
@@ -21,7 +21,7 @@
 #############
 
 # General Variables
-$projectName = "mesh1"
+$projectName = "mesh2"
 $projectLocation = "eastus"
 $subscriptionName = "Microsoft Partner Network"
 $rgName = "rg-$projectName"
@@ -32,7 +32,7 @@ $sshkeyRgName = "rg-keyvault"  ## Name of the resource group in which you store 
 $sshkeyName = "vmkey"          ## Name of the public SSH key you want to use for the VM
 $managedidentityResourceGroup = "rg-usermanagedidentities"
 $managedidentityName = "mesh"
-$publicIPDomainName = "tabulamesh1"  ## DNS name for public IP (will concatenate [name].[region].cloudapp.azure.com) - must be global unique
+$publicIPDomainName = "tabulamesh2"  ## DNS name for public IP (will concatenate [name].[region].cloudapp.azure.com) - must be global unique
 
 # VM Setup Script Variables (passed into Bash using Custom Script Extension)
 $vmSetupScriptURL = "https://raw.githubusercontent.com/JoeShabadu2000/AzurePublic/main/MeshCentral/mesh-ubuntu2204.sh"

@@ -187,3 +187,7 @@ sudo systemctl start mongodb
 sudo systemctl enable mongodb
 whereis node
 sudo setcap cap_net_bind_service=+ep /usr/bin/node
+
+sudo -u $admin_username npm init -y
+
+sudo -u $admin_username npm install meshcentral
