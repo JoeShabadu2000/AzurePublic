@@ -80,17 +80,17 @@ echo "az login --identity -u $managed_identity_clientid" | sudo tee -a /home/$ad
 
 # Pull secrets from Azure Keyvault
 
-ssl_cert_name=$(az keyvault secret show --name ssl-cert-name --vault-name $keyvault_name --query "value" --output tsv)
-storageaccount_name=$(az keyvault secret show --name storageaccount-name --vault-name $keyvault_name --query "value" --output tsv)
-storageaccount_rg=$(az keyvault secret show --name storageaccount-rg --vault-name $keyvault_name --query "value" --output tsv)
-FQDN=$(az keyvault secret show --name FQDN --vault-name $keyvault_name --query "value" --output tsv)
+# ssl_cert_name=$(az keyvault secret show --name ssl-cert-name --vault-name $keyvault_name --query "value" --output tsv)
+# storageaccount_name=$(az keyvault secret show --name storageaccount-name --vault-name $keyvault_name --query "value" --output tsv)
+# storageaccount_rg=$(az keyvault secret show --name storageaccount-rg --vault-name $keyvault_name --query "value" --output tsv)
+# FQDN=$(az keyvault secret show --name FQDN --vault-name $keyvault_name --query "value" --output tsv)
 
 # Write variables to the system profile so they become available for future logins for any user
 
-echo "export ssl_cert_name=$ssl_cert_name
-export storageaccount_name=$storageaccount_name
-export storageaccount_rg=$storageaccount_rg
-export FQDN=$FQDN" | sudo tee -a /etc/profile
+# echo "export ssl_cert_name=$ssl_cert_name
+# export storageaccount_name=$storageaccount_name
+# export storageaccount_rg=$storageaccount_rg
+# export FQDN=$FQDN" | sudo tee -a /etc/profile
 
 ###############################
 # Connect to Azure File Share #
@@ -123,20 +123,20 @@ export FQDN=$FQDN" | sudo tee -a /etc/profile
 
 # Download .pfx file containing key and cert from Key Vault
 
-az keyvault secret download --name $ssl_cert_name --vault-name $keyvault_name --file /home/$admin_username/ssl.pfx  --encoding base64
+# az keyvault secret download --name $ssl_cert_name --vault-name $keyvault_name --file /home/$admin_username/ssl.pfx  --encoding base64
 
 # Split .pfx file into separate key and certificate files
 
-sudo openssl pkcs12 -in /home/$admin_username/ssl.pfx -clcerts -nokeys -out /etc/ssl/certs/ssl.crt -passin pass:
-sudo openssl pkcs12 -in /home/$admin_username/ssl.pfx -noenc -nocerts -out /etc/ssl/private/ssl.key -passin pass:
+# sudo openssl pkcs12 -in /home/$admin_username/ssl.pfx -clcerts -nokeys -out /etc/ssl/certs/ssl.crt -passin pass:
+# sudo openssl pkcs12 -in /home/$admin_username/ssl.pfx -noenc -nocerts -out /etc/ssl/private/ssl.key -passin pass:
 
 # Remove .pfx file from local drive after cert and key files have been created
 
-sudo rm /home/$admin_username/ssl.pfx
+# sudo rm /home/$admin_username/ssl.pfx
 
 # Add line to /etc/crontab to download a new cert on 2nd day of each month and restart nginx (no downtime for nginx)
 
-echo "0 0 2 * * azureuser az login --identity -u $managed_identity_clientid && az keyvault secret download --name $ssl_cert_name --vault-name $keyvault_name --file /home/$admin_username/ssl.pfx  --encoding base64 && sudo openssl pkcs12 -in /home/$admin_username/ssl.pfx -clcerts -nokeys -out /etc/ssl/certs/ssl.crt -passin pass: && sudo openssl pkcs12 -in /home/$admin_username/ssl.pfx -noenc -nocerts -out /etc/ssl/private/ssl.key -passin pass: && sudo rm /home/$admin_username/ssl.pfx && sudo systemctl restart nginx" | sudo tee -a /etc/crontab
+# echo "0 0 2 * * azureuser az login --identity -u $managed_identity_clientid && az keyvault secret download --name $ssl_cert_name --vault-name $keyvault_name --file /home/$admin_username/ssl.pfx  --encoding base64 && sudo openssl pkcs12 -in /home/$admin_username/ssl.pfx -clcerts -nokeys -out /etc/ssl/certs/ssl.crt -passin pass: && sudo openssl pkcs12 -in /home/$admin_username/ssl.pfx -noenc -nocerts -out /etc/ssl/private/ssl.key -passin pass: && sudo rm /home/$admin_username/ssl.pfx && sudo systemctl restart nginx" | sudo tee -a /etc/crontab
 
 #############################
 # Install Nginx HTTPS Proxy #
@@ -182,16 +182,3 @@ echo "0 0 2 * * azureuser az login --identity -u $managed_identity_clientid && a
 # Set up MeshCentral #
 ######################
 
-sudo add-apt-repository universe 
-sudo apt update 
-sudo apt install nodejs npm mongodb -y
-sudo systemctl start mongodb 
-sudo systemctl enable mongodb
-whereis node
-sudo setcap cap_net_bind_service=+ep /usr/bin/node
-
-sudo -u $admin_username npm install meshcentral
-
-sudo -u $admin_username node ./node_modules/meshcentral
-
-rm /home/$admin_username/meshcentral-data/config.json
