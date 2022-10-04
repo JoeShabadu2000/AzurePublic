@@ -194,6 +194,41 @@ sudo systemctl enable mongodb
 whereis node
 sudo setcap cap_net_bind_service=+ep /usr/bin/node
 
-sudo --user=$admin_username npm init -y
+# sudo --user=$admin_username npm init -y
 
-sudo --user=$admin_username npm install meshcentral
+# sudo --user=$admin_username npm install meshcentral
+
+# Create “./mcstart” command to start service and “./mcstop” to stop 
+# it
+
+echo "node ./node_modules/meshcentral > stdout.txt 2> stderr.txt &" > mcstart 
+
+chmod 755 mcstart 
+ 
+echo "pkill -f node_modules/meshcentral" > mcstop 
+
+chmod 755 mcstop
+
+# Automatically start MeshCentral in background
+
+echo "[Unit] 
+Description=MeshCentral Server 
+    
+[Service] 
+Type=simple 
+LimitNOFILE=1000000 
+ExecStart=/usr/bin/node /home/tabulait/node_modules/meshcentral 
+WorkingDirectory=/home/tabulait 
+Environment=NODE_ENV=production 
+User=tabulait 
+Group=tabulait 
+Restart=always 
+# Restart service after 10 seconds if node service crashes 
+RestartSec=10 
+# Set port permissions capability 
+AmbientCapabilities=cap_net_bind_service 
+    
+[Install] 
+WantedBy=multi-user.target" | sudo tee -a /etc/systemd/system/meshcentral.service
+
+sudo systemctl enable meshcentral.service
