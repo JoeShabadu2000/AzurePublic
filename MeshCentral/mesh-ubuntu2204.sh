@@ -182,7 +182,11 @@ echo "az login --identity -u $managed_identity_clientid" | sudo tee -a /home/$ad
 # Set up MeshCentral #
 ######################
 
-sudo apt install nodejs npm mongodb -y
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+
+sudo apt-get install nodejs npm -y
+
+sudo apt-get install mongodb -y
 sudo systemctl start mongodb 
 sudo systemctl enable mongodb
 whereis node
