@@ -64,7 +64,7 @@ echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO 
 
 sudo apt-get update
 
-sudo apt-get install azure-cli=2.39.0-1~jammy -y
+sudo apt-get install azure-cli=2.39.0-1~focal -y
 
 # Login to Azure using the VM's user assigned managed identity
 
