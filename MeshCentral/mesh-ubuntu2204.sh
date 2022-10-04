@@ -144,31 +144,31 @@ echo "0 0 2 * * azureuser az login --identity -u $managed_identity_clientid && a
 
 # Install Nginx & update default config
 
-sudo apt-get install nginx -y
+# sudo apt-get install nginx -y
 
-echo "server {
-    listen 443 ssl;
-    ssl_certificate /etc/ssl/certs/ssl.crt;
-    ssl_certificate_key /etc/ssl/private/ssl.key;
-    server_name $FQDN;
-    access_log /var/log/nginx/nginx.vhost.access.log;
-    error_log /var/log/nginx/nginx.vhost.error.log;
-    location / {
-        proxy_pass_header Authorization;
-        proxy_pass https://localhost:8443;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-Host \$host;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
-    }
-}" | sudo tee -a /etc/nginx/sites-available/default
+# echo "server {
+#     listen 443 ssl;
+#     ssl_certificate /etc/ssl/certs/ssl.crt;
+#     ssl_certificate_key /etc/ssl/private/ssl.key;
+#     server_name $FQDN;
+#     access_log /var/log/nginx/nginx.vhost.access.log;
+#     error_log /var/log/nginx/nginx.vhost.error.log;
+#     location / {
+#         proxy_pass_header Authorization;
+#         proxy_pass https://localhost:8443;
+#         proxy_set_header Host \$host;
+#         proxy_set_header X-Real-IP \$remote_addr;
+#         proxy_set_header X-Forwarded-Host \$host;
+#         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+#         proxy_set_header X-Forwarded-Proto \$scheme;
+#     }
+# }" | sudo tee -a /etc/nginx/sites-available/default
 
 # Redirect HTTP to HTTPS & reload
 
-sudo sed -i '25i return 301 https://$host$request_uri;' /etc/nginx/sites-available/default
+# sudo sed -i '25i return 301 https://$host$request_uri;' /etc/nginx/sites-available/default
 
-sudo systemctl reload nginx
+# sudo systemctl reload nginx
 
 #################
 # Setup Backups #
@@ -177,3 +177,21 @@ sudo systemctl reload nginx
 # Modify /etc/crontab to upload MeshCentral autobackup folder to Azure blob storage every night
 
 # echo "0 0 * * * azureuser az storage blob upload-batch --auth-mode login --overwrite false --destination blob-unifibackup --account-name tabulaunifibackup --source /root/unifi/data/backup/autobackup" | sudo tee -a /etc/crontab
+
+######################
+# Set up MeshCentral #
+######################
+
+sudo add-apt-repository universe 
+sudo apt update 
+sudo apt install nodejs npm mongodb -y
+sudo systemctl start mongodb 
+sudo systemctl enable mongodb
+whereis node
+sudo setcap cap_net_bind_service=+ep /usr/bin/node
+
+sudo -u $admin_username npm install meshcentral
+
+sudo -u $admin_username node ./node_modules/meshcentral
+
+rm /home/$admin_username/meshcentral-data/config.json

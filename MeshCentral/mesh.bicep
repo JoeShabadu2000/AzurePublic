@@ -168,14 +168,14 @@ resource publicipResource 'Microsoft.Network/publicIPAddresses@2021-02-01' = {
 var nsgStandardRules = loadJsonContent('./nsgrules-standard.json', 'securityRules')
 
 // Load app specific NSG rules into variable
-var nsgCustomRules = loadJsonContent('./nsgrules-mesh.json', 'securityRules')
+// var nsgCustomRules = loadJsonContent('./nsgrules-mesh.json', 'securityRules')
 
 // Create NSG
 resource nsgResource 'Microsoft.Network/networkSecurityGroups@2021-03-01' = {
   name: nsgName
   location: projectLocation
   properties: {
-    securityRules: concat(nsgStandardRules, nsgCustomRules)
+    securityRules: concat(nsgStandardRules)
   }
 }
 
