@@ -85,10 +85,10 @@ param sshpublickey string
 param vmImagePublisherName string = 'Canonical'
 
 @description('VM Image Offer Name')
-param vmImageOffer string = '0001-com-ubuntu-server-jammy'
+param vmImageOffer string = '0001-com-ubuntu-server-focal'
 
 @description('VM Image SKU')
-param vmImageSKU string = '22_04-lts-gen2'
+param vmImageSKU string = '20_04-lts-gen2'
 
 @description('VM Image Version')
 param vmImageVersion string = 'latest'
