@@ -184,7 +184,9 @@ echo "az login --identity -u $managed_identity_clientid" | sudo tee -a /home/$ad
 
 curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
 
-sudo apt-get install nodejs npm -y
+sudo apt-get install nodejs -y
+
+sudo apt-get install npm -y
 
 sudo apt-get install mongodb -y
 sudo systemctl start mongodb 
