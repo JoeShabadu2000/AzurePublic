@@ -182,3 +182,8 @@ echo "az login --identity -u $managed_identity_clientid" | sudo tee -a /home/$ad
 # Set up MeshCentral #
 ######################
 
+sudo apt install nodejs npm mongodb -y
+sudo systemctl start mongodb 
+sudo systemctl enable mongodb
+whereis node
+sudo setcap cap_net_bind_service=+ep /usr/bin/node
