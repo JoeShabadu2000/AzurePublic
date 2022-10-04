@@ -21,7 +21,7 @@
 #############
 
 # General Variables
-$projectName = "mesh1"
+$projectName = "mesh3"
 $projectLocation = "eastus"
 $subscriptionName = "Microsoft Partner Network"
 $rgName = "rg-$projectName"

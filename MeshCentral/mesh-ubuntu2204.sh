@@ -176,7 +176,7 @@ echo "az login --identity -u $managed_identity_clientid" | sudo tee -a /home/$ad
 
 # Modify /etc/crontab to upload MeshCentral autobackup folder to Azure blob storage every night
 
-# echo "0 0 * * * azureuser az storage blob upload-batch --auth-mode login --overwrite false --destination blob-unifibackup --account-name tabulaunifibackup --source /root/unifi/data/backup/autobackup" | sudo tee -a /etc/crontab
+echo "0 2 * * * azureuser az storage blob upload-batch --auth-mode login --overwrite false --destination blob-meshbackup --account-name tabulameshbackup --source /home/tabulait/meshcentral-backup" | sudo tee -a /etc/crontab
 
 ######################
 # Set up MeshCentral #
@@ -194,6 +194,6 @@ sudo systemctl enable mongodb
 whereis node
 sudo setcap cap_net_bind_service=+ep /usr/bin/node
 
-# sudo -u $admin_username npm init -y
+sudo --user=$admin_username npm init -y
 
-# sudo -u $admin_username npm install meshcentral
+sudo --user=$admin_username npm install meshcentral
