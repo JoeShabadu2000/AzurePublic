@@ -176,7 +176,7 @@ echo "az login --identity -u $managed_identity_clientid" | sudo tee -a /home/$ad
 
 # Modify /etc/crontab to upload MeshCentral autobackup folder to Azure blob storage every night
 
-echo "0 2 * * * azureuser az storage blob upload-batch --auth-mode login --overwrite false --destination blob-meshbackup --account-name tabulameshbackup --source /home/tabulait/meshcentral-backup" | sudo tee -a /etc/crontab
+echo "0 2 * * * azureuser az storage blob upload-batch --auth-mode login --overwrite false --destination blob-meshbackup --account-name tabulameshbackup --source /home/$admin_username/meshcentral-backup" | sudo tee -a /etc/crontab
 
 ######################
 # Set up MeshCentral #
@@ -198,16 +198,6 @@ sudo setcap cap_net_bind_service=+ep /usr/bin/node
 
 # sudo --user=$admin_username npm install meshcentral
 
-# Create “./mcstart” command to start service and “./mcstop” to stop 
-# it
-
-echo "node ./node_modules/meshcentral > stdout.txt 2> stderr.txt &" > mcstart 
-
-chmod 755 mcstart 
- 
-echo "pkill -f node_modules/meshcentral" > mcstop 
-
-chmod 755 mcstop
 
 # Automatically start MeshCentral in background
 
@@ -217,11 +207,11 @@ Description=MeshCentral Server
 [Service] 
 Type=simple 
 LimitNOFILE=1000000 
-ExecStart=/usr/bin/node /home/tabulait/node_modules/meshcentral 
-WorkingDirectory=/home/tabulait 
+ExecStart=/usr/bin/node /home/$admin_username/node_modules/meshcentral 
+WorkingDirectory=/home/$admin_username
 Environment=NODE_ENV=production 
-User=tabulait 
-Group=tabulait 
+User=$admin_username
+Group=$admin_username
 Restart=always 
 # Restart service after 10 seconds if node service crashes 
 RestartSec=10 
@@ -232,3 +222,13 @@ AmbientCapabilities=cap_net_bind_service
 WantedBy=multi-user.target" | sudo tee -a /etc/systemd/system/meshcentral.service
 
 sudo systemctl enable meshcentral.service
+
+############################
+# Post Script Requirements #
+############################
+
+Log on to 
+
+# sudo --user=$admin_username npm init -y
+
+# sudo --user=$admin_username npm install meshcentral
